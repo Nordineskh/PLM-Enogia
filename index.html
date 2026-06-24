@@ -568,21 +568,13 @@ var DB = {
 var STORAGE_KEY = 'enogia-plm-v2';
 
 async function loadDB() {
-  try {
-    var r = await window.storage.get(STORAGE_KEY);
-    if (r && r.value) {
-      var saved = JSON.parse(r.value);
-      DB = Object.assign(DB, saved);
-    }
-  } catch(e) {}
+  // Firebase prend le relais — cette fonction est conservée pour compatibilité
   if (!DB.produits.length) seedData();
   renderAll();
 }
 
 async function saveDB() {
-  try {
-    await window.storage.set(STORAGE_KEY, JSON.stringify(DB));
-  } catch(e) {}
+  // Firebase prend le relais via saveToDB()
 }
 
 function logEvent(type, produit, msg, user) {
@@ -1284,6 +1276,267 @@ function toast(msg, type) {
 // INIT
 // ============================================================
 loadDB();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- FIREBASE — Authentification Google + Firestore      -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<!-- Ecran de connexion -->
+<div id="login-screen" style="
+  display:none;position:fixed;inset:0;
+  background:#00455a;z-index:1000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:24px">
+  <svg width="48" height="58" viewBox="0 0 48 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 54 C10 54 4 38 14 26 C20 19 30 17 32 10 C34 4 30 0 30 0 C30 0 44 10 40 24 C38 32 28 34 26 42 C24 48 26 54 26 54Z" fill="white" opacity="0.9"/>
+    <path d="M2 50 C2 50 0 36 10 26 C16 20 24 18 26 12 C28 7 25 3 25 3 C25 3 18 14 16 22 C14 30 8 38 5 44 C3 48 2 50 2 50Z" fill="white" opacity="0.55"/>
+  </svg>
+  <div style="text-align:center">
+    <div style="font-family:'Abel',sans-serif;font-size:32px;color:white;letter-spacing:.08em">ENOGIA</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.55);margin-top:4px;font-family:'Roboto',sans-serif">PLM — Source unique de vérité</div>
+  </div>
+  <button id="google-login-btn" style="
+    display:flex;align-items:center;gap:10px;
+    background:white;border:none;border-radius:8px;
+    padding:12px 24px;font-size:14px;font-family:'Roboto',sans-serif;
+    font-weight:500;color:#213c47;cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,.2)">
+    <svg width="18" height="18" viewBox="0 0 18 18">
+      <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
+      <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
+      <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
+      <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
+    </svg>
+    Se connecter avec Google
+  </button>
+  <div id="login-error" style="color:#ff8a80;font-size:12px;font-family:'Roboto',sans-serif;display:none">
+    Accès refusé — utilisez votre adresse @enogia.fr
+  </div>
+  <div style="font-size:11px;color:rgba(255,255,255,.3);font-family:'Roboto',sans-serif">
+    Accès réservé aux collaborateurs Enogia
+  </div>
+</div>
+
+<!-- User bar -->
+<div id="user-bar" style="display:none;position:fixed;bottom:16px;right:16px;z-index:50;
+  background:white;border:1px solid #d8e4e8;border-radius:8px;
+  padding:8px 12px;display:none;align-items:center;gap:8px;
+  box-shadow:0 2px 8px rgba(0,69,90,.12);font-size:12px;font-family:'Roboto',sans-serif">
+  <img id="user-avatar" style="width:24px;height:24px;border-radius:50%" src="" alt="">
+  <span id="user-name" style="color:#213c47;font-weight:500"></span>
+  <button onclick="signOutUser()" style="background:none;border:none;color:#5a7a86;cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px">
+    Déconnexion
+  </button>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import {
+  getFirestore, collection, getDocs, doc, setDoc,
+  addDoc, onSnapshot, serverTimestamp, query, orderBy, limit
+} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup,
+  signOut, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDZPJ5pjxJdiJmSxrjFXv1w5LtGg-uopBA",
+  authDomain: "enogia-plm.firebaseapp.com",
+  projectId: "enogia-plm",
+  storageBucket: "enogia-plm.firebasestorage.app",
+  messagingSenderId: "950409359693",
+  appId: "1:950409359693:web:e43fd880d3971a8b270704"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ hd: 'enogia.fr' });
+
+// ── Auth ──────────────────────────────────────────
+window.signOutUser = async function() {
+  await signOut(auth);
+};
+
+document.getElementById('google-login-btn').addEventListener('click', async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const email = result.user.email;
+    // Accepter aussi les emails non-enogia.fr en dev (à restreindre en prod via Firestore Rules)
+    document.getElementById('login-error').style.display = 'none';
+  } catch(e) {
+    document.getElementById('login-error').style.display = 'block';
+    console.error(e);
+  }
+});
+
+onAuthStateChanged(auth, async (user) => {
+  const loginScreen = document.getElementById('login-screen');
+  const userBar = document.getElementById('user-bar');
+
+  if (user) {
+    // Connecté
+    loginScreen.style.display = 'none';
+    userBar.style.display = 'flex';
+    document.getElementById('user-name').textContent = user.displayName || user.email;
+    if (user.photoURL) document.getElementById('user-avatar').src = user.photoURL;
+
+    // Charger données Firestore
+    await loadFromFirestore(user);
+
+    // Listener temps réel flags
+    onSnapshot(collection(db, 'flags'), (snap) => {
+      if (!snap.empty) {
+        DB.flags = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        updateNavBadges();
+        if (currentPage === 'dashboard') renderDashboard();
+        if (currentPage === 'flags') renderFlags();
+      }
+    });
+
+    // Listener temps réel journal
+    const jq = query(collection(db, 'journal'), orderBy('date','desc'), limit(50));
+    onSnapshot(jq, (snap) => {
+      if (!snap.empty) {
+        DB.journal = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        if (currentPage === 'dashboard') renderDashboard();
+        if (currentPage === 'tracabilite') renderJournal();
+      }
+    });
+
+  } else {
+    // Non connecté — afficher login
+    loginScreen.style.display = 'flex';
+    userBar.style.display = 'none';
+  }
+});
+
+// ── Firestore CRUD ────────────────────────────────
+async function loadFromFirestore(user) {
+  try {
+    // Charger produits
+    const prodSnap = await getDocs(collection(db, 'produits'));
+    if (!prodSnap.empty) {
+      DB.produits = prodSnap.docs.map(d => ({...d.data()}));
+    }
+
+    // Charger ECO
+    const ecoSnap = await getDocs(collection(db, 'eco'));
+    if (!ecoSnap.empty) {
+      DB.eco = ecoSnap.docs.map(d => ({id: d.id, ...d.data()}));
+    }
+
+    // Charger documents
+    const docSnap = await getDocs(collection(db, 'documents'));
+    if (!docSnap.empty) {
+      DB.documents = docSnap.docs.map(d => ({id: d.id, ...d.data()}));
+    }
+
+    // Charger fournisseurs
+    const fSnap = await getDocs(collection(db, 'fournisseurs'));
+    if (!fSnap.empty) {
+      DB.fournisseurs = fSnap.docs.map(d => ({id: d.id, ...d.data()}));
+    }
+
+    // Charger flags
+    const flagSnap = await getDocs(collection(db, 'flags'));
+    if (!flagSnap.empty) {
+      DB.flags = flagSnap.docs.map(d => ({id: d.id, ...d.data()}));
+    }
+
+    // Si Firestore vide → seed + upload
+    if (prodSnap.empty) {
+      seedData();
+      await uploadSeedToFirestore(user);
+    }
+
+    renderAll();
+  } catch(e) {
+    console.error('Firestore load error:', e);
+    seedData();
+    renderAll();
+  }
+}
+
+async function uploadSeedToFirestore(user) {
+  try {
+    // Upload produits
+    for (const p of DB.produits) {
+      await setDoc(doc(db, 'produits', p.id), {...p, createdBy: user.email, createdAt: serverTimestamp()});
+    }
+    // Upload fournisseurs
+    for (const f of DB.fournisseurs) {
+      await setDoc(doc(db, 'fournisseurs', f.id), f);
+    }
+    // Upload documents
+    for (const d of DB.documents) {
+      await setDoc(doc(db, 'documents', d.id), d);
+    }
+    // Upload flags
+    for (const f of DB.flags) {
+      await setDoc(doc(db, 'flags', f.id), f);
+    }
+    // Upload ECO
+    for (const e of DB.eco) {
+      await setDoc(doc(db, 'eco', e.id), e);
+    }
+    console.log('Seed Firestore OK');
+  } catch(e) {
+    console.error('Seed upload error:', e);
+  }
+}
+
+// ── Override saveProduit → Firestore ──────────────
+window._saveProduitFS = async function(produit, userEmail) {
+  try {
+    await setDoc(doc(db, 'produits', produit.id), {
+      ...produit,
+      maj: new Date().toISOString(),
+      updatedBy: userEmail,
+      updatedAt: serverTimestamp()
+    });
+  } catch(e) { console.error(e); }
+};
+
+// ── Override logEvent → Firestore journal ─────────
+const _origLog = window.logEvent;
+window.logEvent = async function(type, produit, msg, user) {
+  // Local
+  if (_origLog) _origLog(type, produit, msg, user);
+  // Firestore
+  const currentUser = auth.currentUser;
+  try {
+    await addDoc(collection(db, 'journal'), {
+      type, produit, msg,
+      user: currentUser ? currentUser.email : (user || 'Système'),
+      date: serverTimestamp()
+    });
+  } catch(e) { console.error(e); }
+};
+
+// ── Override toggleFlag → Firestore ──────────────
+window._toggleFlagFS = async function(flagId, resolu) {
+  try {
+    await setDoc(doc(db, 'flags', flagId), { resolu }, { merge: true });
+  } catch(e) { console.error(e); }
+};
+
+// ── Override saveECO → Firestore ─────────────────
+window._saveECOFS = async function(eco) {
+  try {
+    await setDoc(doc(db, 'eco', eco.id), {
+      ...eco,
+      createdBy: auth.currentUser ? auth.currentUser.email : 'Système',
+      createdAt: serverTimestamp()
+    });
+  } catch(e) { console.error(e); }
+};
+
+console.log('Firebase PLM Enogia initialisé ✓');
 </script>
 </body>
 </html>
