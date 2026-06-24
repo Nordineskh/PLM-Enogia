@@ -180,9 +180,11 @@ label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bot
 <nav class="sidebar">
   <div class="logo">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
-      <svg width="22" height="26" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 24 C4 24 2 18 6 13 C8 10 12 9 13 6 C14 3 12 1 12 1 C12 1 18 5 16 12 C15 16 11 17 10 20 C9 22 10 24 10 24Z" fill="white" opacity="0.9"/>
-        <path d="M1 22 C1 22 0 17 4 13 C6 11 9 10 10 8 C11 6 10 4 10 4 C10 4 7 8 6 12 C5 15 3 18 2 20 C1.5 21 1 22 1 22Z" fill="white" opacity="0.6"/>
+      <svg width="28" height="32" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Feuille arrière gauche -->
+        <path d="M3 31 C2.5 28 1 23 2 17 C3 12 7 10 8 6 C8.5 3 7 1 7 1 C7 1 4 4 3 9 C2 13 1 19 0.5 24 C0 27 0 31 0 31 Z" fill="white" opacity="0.45"/>
+        <!-- Feuille principale droite — plus grande et élancée -->
+        <path d="M15 31 C14.5 27 12 21 13 14 C14 8 19 6 20 1 C20 1 18 0 18 0 C18 0 25 4 23 12 C21 18 16 19 15 24 C14 27 14 31 15 31 Z" fill="white" opacity="0.92"/>
       </svg>
       <span class="logo-badge">ENOGIA</span>
     </div>
@@ -594,61 +596,101 @@ function logEvent(type, produit, msg, user) {
 // ============================================================
 function seedData() {
   DB.produits = [
-    {id:'PF-2201', name:'Échangeur compact EC-40', type:'Catalogue', phase:'Développement', rev:'B', resp:'M. Durand', famille:'Échangeur', statut:'Attente', maj:'2026-06-12', desc:'Échangeur thermique compact pour ORC basse température'},
-    {id:'PF-1845', name:'Turbine ORC série A', type:'Catalogue', phase:'Production', rev:'D', resp:'C. Martin', famille:'Turbine', statut:'Validé', maj:'2026-05-20', desc:'Turbine axiale mono-étagée pour ORC 20-50kW'},
-    {id:'PF-2310', name:'Module ORC V2 50kW', type:'ETO', phase:'Validation', rev:'A', resp:'A. Bernard', famille:'ORC', statut:'En cours', maj:'2026-06-18', desc:'Module ORC complet 50kW sur skid, configuration client'},
-    {id:'PF-1102', name:'Compresseur R410a', type:'Catalogue', phase:'Concept', rev:'—', resp:'J. Petit', famille:'Compresseur', statut:'Actif', maj:'2026-06-20', desc:'Compresseur à vis pour cycle de chaleur R410a'},
-    {id:'PF-2401', name:'Régulateur smart RG-100', type:'ETO', phase:'Développement', rev:'A', resp:'M. Durand', famille:'Régulation', statut:'Bloqué', maj:'2026-06-10', desc:'Régulateur intelligent avec supervision IoT'},
-    {id:'PF-0890', name:'Pompe HT 2019', type:'Catalogue', phase:'Fin de vie', rev:'F', resp:'—', famille:'Pompe', statut:'Archivé', maj:'2024-01-05', desc:'Pompe haute température — fin de commercialisation'}
+    {id:'Pi085-510-DC001', name:'Cycle ORC — Pi085', type:'ETO', phase:'Production', rev:'G', resp:'LE DELEY M', famille:'ORC', statut:'Validé', maj:'2026-06-19', desc:'Cycle ORC complet — Pipe ANSI Schedule 40S DN150 & DN125, 10S DN100, DN80 & DN50. Masse : 2518.98 kg. 7 planches A3. Approuvé : Le Ruyet.', masse:'2518.98'},
+    {id:'Pi085-511-DC001', name:'Chassis 180LTV3', type:'Catalogue', phase:'Production', rev:'G', resp:'LE DELEY M', famille:'Structure', statut:'Validé', maj:'2026-06-16', desc:'Structure soudée chassis 180LTV3. Matière : S235JR. Traitement : Sablage + thermolaquage RAL5012. Masse : 719.51 kg. 13 planches A3. Approuvé : Le Ruyet.', masse:'719.51'}
   ];
 
   DB.bom = {
-    'PF-2201': {
-      ref:'PF-2201', children: [
-        {ref:'PF-2201-001', name:'Corps principal Inox 316L', qty:1, unit:'pce', fourn:'Thermoflow SAS', statut:'ok', children:[
-          {ref:'PF-2201-001-A', name:'Plaque étanchéité', qty:4, unit:'pce', fourn:'Thermoflow SAS', statut:'ok', children:[]},
-          {ref:'PF-2201-001-B', name:'Joint torique EPDM Ø60', qty:8, unit:'pce', fourn:'Thermoflow SAS', statut:'ok', children:[]}
+    'Pi085-510-DC001': {
+      ref:'Pi085-510-DC001', children:[
+        {ref:'1609085510001', name:'Tuyauterie ANSI Sch 40S DN150/DN125, 10S DN100/DN80/DN50', qty:1, unit:'ens', fourn:'Interne', statut:'ok', children:[
+          {ref:'0205009952014', name:'Coude DN150 SR 90° Sch 40S', qty:6, unit:'pce', fourn:'Béné-inox', ref_fourn:'359172-150', statut:'ok', children:[]},
+          {ref:'0205009952018', name:'Coude DN150 LR 45° Sch 40S', qty:2, unit:'pce', fourn:'Béné-inox', ref_fourn:'359222-150', statut:'ok', children:[]},
+          {ref:'0205009952012', name:'Coude DN80 SR 90° Sch 10S', qty:4, unit:'pce', fourn:'Béné-inox', ref_fourn:'359162-80', statut:'ok', children:[]},
+          {ref:'0205009952010', name:'Coude DN50 SR 90° Sch 10S', qty:3, unit:'pce', fourn:'Béné-inox', ref_fourn:'359162-50', statut:'ok', children:[]},
+          {ref:'0205009954007', name:'Té DN150 Sch 40S', qty:2, unit:'pce', fourn:'Béné-inox', ref_fourn:'359372-150', statut:'ok', children:[]},
+          {ref:'0205009954008', name:'Té DN80 Sch 10S', qty:1, unit:'pce', fourn:'Béné-inox', ref_fourn:'659362-80', statut:'ok', children:[]},
+          {ref:'0205009954010', name:'Té réducteur DN80-50 Sch 10S', qty:2, unit:'pce', fourn:'Béné-inox', ref_fourn:'659432-8050', statut:'ok', children:[]},
+          {ref:'659172-125', name:'Coude SR DN125 Sch 40S', qty:6, unit:'pce', fourn:'Béné-inox', ref_fourn:'659172-125', statut:'ok', children:[]}
         ]},
-        {ref:'PF-2201-002', name:'Module hydraulique', qty:1, unit:'pce', fourn:'', statut:'warn', children:[
-          {ref:'PF-2201-002-A', name:'Vanne 3 voies DN25', qty:2, unit:'pce', fourn:'', statut:'error', children:[]},
-          {ref:'PF-2201-002-B', name:'Pompe centrifuge 0.5kW', qty:1, unit:'pce', fourn:'', statut:'error', children:[]},
-          {ref:'PF-2201-002-C', name:'Régulateur de débit', qty:1, unit:'pce', fourn:'', statut:'error', children:[]}
+        {ref:'1609085510014', name:'Condenseur SWEP', qty:2, unit:'pce', fourn:'SWEP', ref_fourn:'03425640.0', statut:'ok', children:[]},
+        {ref:'1609085510014-EVA', name:'Evaporateur B649Mx280', qty:1, unit:'pce', fourn:'SWEP', ref_fourn:'03497844.0', statut:'ok', children:[]},
+        {ref:'CRN45-5', name:'Pompe de cycle CRN45-5', qty:1, unit:'pce', fourn:'Grundfos', statut:'ok', children:[]},
+        {ref:'LH-LT-100kW', name:'Turbine LH LT 100kW', qty:1, unit:'pce', fourn:'ENOGIA (interne)', statut:'ok', children:[]},
+        {ref:'RH-LT-100kW', name:'Turbine RH LT 100kW', qty:1, unit:'pce', fourn:'ENOGIA (interne)', statut:'ok', children:[]},
+        {ref:'16104055100403005', name:'Tank 90L', qty:1, unit:'pce', fourn:'Interne', statut:'ok', children:[]},
+        {ref:'1609085510006', name:'Vanne pilotée ICS1 50 — 2 1/8 ODF', qty:1, unit:'pce', fourn:'Lefroid', ref_fourn:'0461058', statut:'ok', children:[]},
+        {ref:'1609085510007', name:'Vanne droite BW DN80', qty:1, unit:'pce', fourn:'Lefroid', ref_fourn:'0400033', statut:'ok', children:[]},
+        {ref:'0205009914002', name:'Module 4 fonctions FIA80', qty:1, unit:'pce', fourn:'Lefroid', ref_fourn:'400094', statut:'ok', children:[]},
+        {ref:'1609085510005', name:'Clapet anti-retour BW DN80 ⚠ ne pas souder', qty:1, unit:'pce', fourn:'Béné-inox', ref_fourn:'458722-80', statut:'warn', children:[]},
+        {ref:'BRIDES-JOINTS', name:'Brides, joints et boulonnerie (voir BOM détail)', qty:1, unit:'lot', fourn:'Béné-inox / Fitex', statut:'ok', children:[
+          {ref:'0205009951009', name:'Bride à souder DN150 ISO 11B Sch 10S PN10/16', qty:4, unit:'pce', fourn:'Béné-inox', ref_fourn:'357212-150', statut:'ok', children:[]},
+          {ref:'0205009951008', name:'Bride à souder DN100 ISO 11B Sch 10S PN10/16', qty:4, unit:'pce', fourn:'Béné-inox', ref_fourn:'357432-100', statut:'ok', children:[]},
+          {ref:'0205009951034', name:'Bride à souder DN150 Sch 40S EN1092', qty:2, unit:'pce', fourn:'Béné-inox', ref_fourn:'357212-15040', statut:'ok', children:[]},
+          {ref:'0205009951033', name:'Bride à souder DN125 Sch 40S EN1092', qty:2, unit:'pce', fourn:'Béné-inox', ref_fourn:'357212-12540', statut:'ok', children:[]},
+          {ref:'357142-12540', name:'Bride plate DN125 PN25/40', qty:4, unit:'pce', fourn:'Béné-inox', ref_fourn:'357142-12540', statut:'ok', children:[]},
+          {ref:'DN125-JOINT', name:'Joint plat DN125 Ep.3mm', qty:4, unit:'pce', fourn:'Fitex', statut:'ok', children:[]},
+          {ref:'DN150-JOINT', name:'Joint plat DN150 Ep.3mm', qty:6, unit:'pce', fourn:'Fitex', statut:'ok', children:[]},
+          {ref:'DN100-JOINT', name:'Joint plat DN100 Ep.3mm', qty:3, unit:'pce', fourn:'Fitex', statut:'ok', children:[]}
         ]},
-        {ref:'PF-2201-003', name:'Carte électronique CTL-04', qty:1, unit:'pce', fourn:'InnoParts GmbH', statut:'warn', children:[]}
+        {ref:'1609071510013', name:'Plaque CE ENO-PL-VHP', qty:1, unit:'pce', fourn:'—', statut:'warn', children:[]}
       ]
     },
-    'PF-1845': {
-      ref:'PF-1845', children:[
-        {ref:'PF-1845-001', name:'Rotor turbine Ti6Al4V', qty:1, unit:'pce', fourn:'TurboComp Ltd', statut:'ok', children:[]},
-        {ref:'PF-1845-002', name:'Stator Inox 316', qty:1, unit:'pce', fourn:'TurboComp Ltd', statut:'ok', children:[]},
-        {ref:'PF-1845-003', name:'Palier magnétique', qty:2, unit:'pce', fourn:'TurboComp Ltd', statut:'ok', children:[]}
+    'Pi085-511-DC001': {
+      ref:'Pi085-511-DC001', children:[
+        {ref:'STRUCT-UPE80', name:'UPE80 Profilé ailes parallèles EN10279 (x12 tronçons)', qty:12, unit:'pce', fourn:'', statut:'error', children:[
+          {ref:'STRUCT-001', name:'UPE80 L920mm', qty:4, unit:'pce', fourn:'', statut:'error', children:[]},
+          {ref:'STRUCT-007', name:'UPE80 L1766mm', qty:1, unit:'pce', fourn:'', statut:'error', children:[]},
+          {ref:'STRUCT-008', name:'UPE80 L584mm', qty:3, unit:'pce', fourn:'', statut:'error', children:[]}
+        ]},
+        {ref:'STRUCT-UPE120', name:'UPE120 Profilé ailes parallèles EN10279', qty:2, unit:'pce', fourn:'', statut:'error', children:[
+          {ref:'STRUCT-053', name:'UPE120 L2680mm', qty:1, unit:'pce', fourn:'', statut:'error', children:[]},
+          {ref:'STRUCT-054', name:'UPE120 L2680mm', qty:1, unit:'pce', fourn:'', statut:'error', children:[]}
+        ]},
+        {ref:'STRUCT-IPE120', name:'Profilé IPE 120 — L1370mm', qty:1, unit:'pce', fourn:'', statut:'error', children:[]},
+        {ref:'STRUCT-CORNIERE-100', name:'Cornière 100x100x10 ailes égales', qty:3, unit:'pce', fourn:'', statut:'error', children:[]},
+        {ref:'STRUCT-CORNIERE-60', name:'Cornière 60x60x6 ailes égales (multiples)', qty:1, unit:'lot', fourn:'', statut:'error', children:[]},
+        {ref:'STRUCT-TUBE-RECT', name:'Tube rectangulaire 120x60x5 (multiples)', qty:1, unit:'lot', fourn:'', statut:'error', children:[]},
+        {ref:'STRUCT-TUBE-CARRE', name:'Tube carré 60x60x4 (multiples)', qty:1, unit:'lot', fourn:'', statut:'error', children:[]},
+        {ref:'CHEMINS-CABLES', name:'Chemins de câbles 50x35 et 100x55', qty:1, unit:'lot', fourn:'YESSS Electrique', ref_fourn:'6000060 / 6001442', statut:'ok', children:[
+          {ref:'CHEM-002', name:'Chemin de câbles 50x35 L1380mm', qty:1, unit:'pce', fourn:'YESSS Electrique', ref_fourn:'6000060', statut:'ok', children:[]},
+          {ref:'CHEM-003', name:'Chemin de câbles 100x55 L2100mm', qty:2, unit:'pce', fourn:'YESSS Electrique', ref_fourn:'6001442', statut:'ok', children:[]},
+          {ref:'CHEM-004', name:'Chemin de câbles 50x35 L650mm', qty:3, unit:'pce', fourn:'YESSS Electrique', ref_fourn:'6000060', statut:'ok', children:[]},
+          {ref:'CHEM-005', name:'Chemin de câbles 50x35 L1580mm', qty:2, unit:'pce', fourn:'YESSS Electrique', ref_fourn:'6000060', statut:'ok', children:[]}
+        ]},
+        {ref:'SUPP-019', name:'Support Ø16', qty:3, unit:'pce', fourn:'Béné-inox', ref_fourn:'372121-163', statut:'ok', children:[]},
+        {ref:'SUPP-020', name:'Support Ø26', qty:6, unit:'pce', fourn:'Béné-inox', ref_fourn:'372121-269', statut:'ok', children:[]},
+        {ref:'Pi085-511-DC012-C', name:'Lub support 2', qty:2, unit:'pce', fourn:'Enogia (interne)', statut:'warn', children:[]}
       ]
     }
   };
 
   DB.eco = [
-    {id:'ECO-2026-041', type:'ECO', titre:'Changement matière corps — PF-2201', produit:'PF-2201', prio:'Haute', demandeur:'M. Durand', date:'2026-06-15', statut:'En cours', desc:'Passage de l\'acier S235 à Inox 316L pour tenue en corrosion'},
-    {id:'ECR-2026-038', type:'ECR', titre:'Ajout variante basse temp. ORC V2', produit:'PF-2310', prio:'Normale', demandeur:'A. Bernard', date:'2026-06-10', statut:'En attente approbation', desc:'Demande variante 30kW pour client projet Alpes Maritimes'},
-    {id:'ECO-2026-035', type:'ECO', titre:'Remplacement capteur pression CTL-04', produit:'PF-2401', prio:'Critique', demandeur:'Direction', date:'2026-06-08', statut:'Bloqué', desc:'InnoParts en audit — capteur indisponible'},
-    {id:'ECR-2026-030', type:'ECR', titre:'Certification ATEX zone 2 turbine A', produit:'PF-1845', prio:'Haute', demandeur:'C. Martin', date:'2026-05-28', statut:'Approuvé', desc:'Ajout certification ATEX zone 2 pour client pétrochimie'},
-    {id:'ECO-2026-022', type:'ECO', titre:'Révision plan assemblage compresseur', produit:'PF-1102', prio:'Normale', demandeur:'J. Petit', date:'2026-05-15', statut:'Approuvé', desc:'Correction cotes plan assemblage suite retour atelier'}
+    {id:'ECO-2026-G510', type:'ECO', titre:'Rev F→G : Connexion évaporateur→turbine DN125', produit:'Pi085-510-DC001', prio:'Haute', demandeur:'LE DELEY M', date:'2026-06-19', statut:'Approuvé', desc:'Évolution connexion évaporateur vers turbine : passage DN150→DN125. Zones impactées : 2-F3, 2-F4, 5-C7.'},
+    {id:'ECO-2026-G511', type:'ECO', titre:'Rev F→G : Repositionnement armoire élec. + chemins câbles', produit:'Pi085-511-DC001', prio:'Normale', demandeur:'LE DELEY M', date:'2026-06-16', statut:'Approuvé', desc:'BOM triée, modification position trous armoire électrique, ajustement chemins câbles, supports chokes et drycoolers.'},
+    {id:'ECO-2026-F510', type:'ECO', titre:'Rev E→F : Bride lubrification tank + PN25/40 turbine', produit:'Pi085-510-DC001', prio:'Haute', demandeur:'LE DELEY M', date:'2026-06-03', statut:'Approuvé', desc:'Connexion bridée pour lubrification sur le tank, passage PN25/40 pour connexions turbine.'},
+    {id:'ECO-2025-F511', type:'ECO', titre:'Rev E→F : UPN120 remplace IPN120 + M8 cadre', produit:'Pi085-511-DC001', prio:'Haute', demandeur:'LE DELEY M', date:'2025-02-21', statut:'Approuvé', desc:'Remplacement IPN120 par UPN120, trous oblongs sur UPN, 2 trous Ø16mm, 34xM8 cadre extérieur et dessus, chemin câbles 50x35 non soudé.'},
+    {id:'ECR-2026-001', type:'ECR', titre:'Fournisseur acier chassis — à qualifier', produit:'Pi085-511-DC001', prio:'Critique', demandeur:'Achats', date:'2026-06-24', statut:'En cours', desc:'Les profilés S235JR n\'ont pas de fournisseur qualifié. Lancement consultation urgente requis avant fabrication.'},
+    {id:'ECR-2026-002', type:'ECR', titre:'Gamme de fabrication chassis 180LTV3', produit:'Pi085-511-DC001', prio:'Haute', demandeur:'Méthodes', date:'2026-06-24', statut:'En attente approbation', desc:'Création gamme de fabrication et instructions montage chassis 180LTV3. Prérequis avant lancement atelier.'}
   ];
 
   DB.documents = [
-    {id:'DOC-001', name:'Spécification technique EC-40', type:'Spécification', produit:'PF-2201', version:'v2.1', auteur:'M. Durand', date:'2026-06-12', statut:'Signé', flag:'ok'},
-    {id:'DOC-002', name:'Rapport de validation ORC V2', type:'Rapport', produit:'PF-2310', version:'—', auteur:'—', date:'—', statut:'MANQUANT', flag:'critical'},
-    {id:'DOC-003', name:'Fiche données Turbine série A', type:'Datasheet', produit:'PF-1845', version:'v3.4', auteur:'C. Martin', date:'2026-03-15', statut:'Signé', flag:'ok'},
-    {id:'DOC-004', name:'CDC Compresseur R410a', type:'CDC', produit:'PF-1102', version:'v0.3', auteur:'J. Petit', date:'2026-06-20', statut:'Non signé', flag:'warn'},
-    {id:'DOC-005', name:'Plan de validation ORC V2', type:'Procédure', produit:'PF-2310', version:'v1.0', auteur:'A. Bernard', date:'2026-06-01', statut:'En attente', flag:'warn'},
-    {id:'DOC-006', name:'Plan de substitution RG-100', type:'Plan', produit:'PF-2401', version:'—', auteur:'—', date:'—', statut:'MANQUANT', flag:'critical'}
+    {id:'DOC-510-G', name:'Plan Cycle ORC — Pi085-510-DC001', type:'Plan', produit:'Pi085-510-DC001', version:'Rev G', auteur:'LE DELEY M', date:'2026-06-19', statut:'Signé', flag:'ok'},
+    {id:'DOC-511-G', name:'Plan Chassis 180LTV3 — Pi085-511-DC001', type:'Plan', produit:'Pi085-511-DC001', version:'Rev G', auteur:'LE DELEY M', date:'2026-06-16', statut:'Signé', flag:'ok'},
+    {id:'DOC-TANK', name:'Plan Tank 90L — Pi085-510-DC007', type:'Plan', produit:'Pi085-510-DC001', version:'Rev B', auteur:'—', date:'—', statut:'En attente', flag:'warn'},
+    {id:'DOC-LUBSUP', name:'Plan Lub Support — Pi085-511-DC012', type:'Plan', produit:'Pi085-511-DC001', version:'Rev C', auteur:'—', date:'—', statut:'En attente', flag:'warn'},
+    {id:'DOC-CE', name:'Dossier technique CE — Cycle ORC Pi085', type:'Dossier CE', produit:'Pi085-510-DC001', version:'—', auteur:'—', date:'—', statut:'MANQUANT', flag:'critical'},
+    {id:'DOC-GAMME', name:'Gamme fabrication chassis 180LTV3', type:'Gamme', produit:'Pi085-511-DC001', version:'—', auteur:'—', date:'—', statut:'MANQUANT', flag:'critical'}
   ];
 
   DB.fournisseurs = [
-    {id:'F-001', name:'Thermoflow SAS', famille:'Échangeurs, corps', produits:['PF-2201','PF-0890'], qualif:'Qualifié', risque:'Faible', audit:'2026-12-01', statut:'ok'},
-    {id:'F-002', name:'InnoParts GmbH', famille:'Régulateurs, capteurs', produits:['PF-2401','PF-2201'], qualif:'Audit en cours', risque:'Critique', audit:'2026-07-15', statut:'error'},
-    {id:'F-003', name:'TurboComp Ltd', famille:'Turbines, compresseurs', produits:['PF-1845','PF-1102'], qualif:'Qualifié', risque:'Faible', audit:'2027-01-10', statut:'ok'},
-    {id:'F-004', name:'ORC Systems', famille:'Modules ORC', produits:['PF-2310'], qualif:'Probatoire', risque:'Moyen', audit:'2026-08-20', statut:'warn'},
-    {id:'F-005', name:'Non défini', famille:'Vannes, pompes, régulation', produits:['PF-2201'], qualif:'Manquant', risque:'Critique', audit:'—', statut:'error'}
+    {id:'F-BENEINOX', name:'Béné-inox', famille:'Tuyauterie, brides, raccords, colliers', produits:['Pi085-510-DC001','Pi085-511-DC001'], qualif:'Qualifié', risque:'Faible', audit:'2027-01-01', statut:'ok'},
+    {id:'F-SWEP', name:'SWEP', famille:'Condenseurs, évaporateurs à plaques', produits:['Pi085-510-DC001'], qualif:'Qualifié', risque:'Faible', audit:'2027-06-01', statut:'ok'},
+    {id:'F-LEFROID', name:'Lefroid', famille:'Vannes, modules régulation', produits:['Pi085-510-DC001'], qualif:'Qualifié', risque:'Faible', audit:'2026-12-01', statut:'ok'},
+    {id:'F-YESSS', name:'YESSS Electrique', famille:'Chemins de câbles', produits:['Pi085-511-DC001'], qualif:'Qualifié', risque:'Faible', audit:'2027-03-01', statut:'ok'},
+    {id:'F-FITEX', name:'Fitex', famille:'Joints plats DN', produits:['Pi085-510-DC001'], qualif:'Qualifié', risque:'Faible', audit:'2027-01-01', statut:'ok'},
+    {id:'F-GRUNDFOS', name:'Grundfos', famille:'Pompes de cycle CRN', produits:['Pi085-510-DC001'], qualif:'Qualifié', risque:'Moyen', audit:'2026-09-01', statut:'ok'},
+    {id:'F-ACIER', name:'Fournisseur acier (à définir)', famille:'Profilés UPE/UPN/IPE, tubes, cornières S235JR', produits:['Pi085-511-DC001'], qualif:'Manquant', risque:'Critique', audit:'—', statut:'error'}
   ];
 
   DB.integrations = [
@@ -659,22 +701,25 @@ function seedData() {
   ];
 
   DB.flags = [
-    {id:'F1', niveau:'critical', titre:'BOM incomplète — PF-2201', desc:'3 composants critiques sans fournisseur assigné depuis 47 jours. Aucune alerte remontée manuellement.', produit:'PF-2201', resolu:false},
-    {id:'F2', niveau:'critical', titre:'Document manquant en validation — PF-2310', desc:'Rapport de validation obligatoire absent. Produit à 55% sans ce document clé. Risque non-conformité.', produit:'PF-2310', resolu:false},
-    {id:'F3', niveau:'critical', titre:'Fournisseur unique bloquant — PF-2401', desc:'InnoParts GmbH en audit sans plan de substitution. Dépendance totale non adressée.', produit:'PF-2401', resolu:false},
-    {id:'F4', niveau:'warn', titre:'Retard non signalé — PF-2201', desc:'Délai de phase dépassé de 12 jours. Aucune mise à jour de statut.', produit:'PF-2201', resolu:false},
-    {id:'F5', niveau:'warn', titre:'Fournisseur probatoire sur validation — PF-2310', desc:'ORC Systems non qualifié. Risque de requalification tardive non anticipé.', produit:'PF-2310', resolu:false},
-    {id:'F6', niveau:'warn', titre:'CDC non signé — PF-1102', desc:'Cahier des charges v0.3 non signé depuis 4 jours. Phase concept démarrée sans validation formelle.', produit:'PF-1102', resolu:false},
-    {id:'F7', niveau:'info', titre:'Concentration de risque responsable', desc:'M. Durand assigné à 3 produits dont 2 bloqués. Risque de perte de priorité.', produit:'Tous', resolu:false},
-    {id:'F8', niveau:'info', titre:'Dossier clôture manquant — PF-0890', desc:'Archivé sans documentation REACH/recyclabilité. Risque de non-conformité réglementaire.', produit:'PF-0890', resolu:false}
+    {id:'F1', niveau:'critical', titre:'Fournisseur acier non défini — Pi085-511-DC001', desc:'Les profilés S235JR (UPE80, UPE120, UPN120, IPE120, tubes carré/rect, cornières) n\'ont pas de fournisseur assigné dans la BOM chassis. Risque de blocage fabrication.', produit:'Pi085-511-DC001', resolu:false},
+    {id:'F2', niveau:'critical', titre:'Dossier CE manquant — Pi085-510-DC001', desc:'La plaque CE (item 53 — ref 1609071510013) est positionnée sur le plan ENO-PL-VHP mais le dossier technique CE complet n\'est pas versé dans le PLM.', produit:'Pi085-510-DC001', resolu:false},
+    {id:'F3', niveau:'critical', titre:'Gamme de fabrication absente — Pi085-511-DC001', desc:'Aucune gamme de fabrication du chassis 180LTV3 n\'est présente dans le PLM. Document requis avant lancement atelier.', produit:'Pi085-511-DC001', resolu:false},
+    {id:'F4', niveau:'warn', titre:'Plan Tank 90L non signé — Pi085-510-DC007', desc:'Le plan du réservoir 90L référencé dans le cycle ORC (ENO-RES-01, Pi085-510-DC007) est en attente de signature. Composant critique du cycle.', produit:'Pi085-510-DC001', resolu:false},
+    {id:'F5', niveau:'warn', titre:'Plan Lub Support non signé — Pi085-511-DC012', desc:'Le support de lubrification (item 21 BOM chassis) référence un plan Pi085-511-DC012 en version C non encore signé.', produit:'Pi085-511-DC001', resolu:false},
+    {id:'F6', niveau:'warn', titre:'Vérification approbation Rev G — Cycle ORC', desc:'Rev G signée le 19/06/2026 par Le Ruyet. Aucune date de vérification visible sur le plan cycle ORC. À confirmer dans le circuit de validation.', produit:'Pi085-510-DC001', resolu:false},
+    {id:'F7', niveau:'info', titre:'Turbines LH/RH 100kW — production interne', desc:'Les turbines sont produites en interne (fournisseur = ENOGIA). Vérifier que la gamme de fabrication turbine est à jour et liée dans le PLM.', produit:'Pi085-510-DC001', resolu:false},
+    {id:'F8', niveau:'info', titre:'Contrainte montage clapet DN80 — Pi085-510-DC001', desc:'Le plan précise explicitement \"Do not weld the check valve in place\" (item 10 — Béné-inox 458722-80). Cette contrainte doit être tracée dans la gamme de montage atelier.', produit:'Pi085-510-DC001', resolu:false}
   ];
 
   DB.journal = [
-    {id:'J1', type:'creation', produit:'PF-2401', msg:'Produit PF-2401 créé en phase développement', user:'M. Durand', date:'2026-06-10T09:00:00Z'},
-    {id:'J2', type:'eco', produit:'PF-2201', msg:'ECO-2026-041 soumis — changement matière corps', user:'M. Durand', date:'2026-06-15T14:23:00Z'},
-    {id:'J3', type:'sync', produit:'PF-1845', msg:'Synchronisation ERP réussie — BOM mise à jour (6 articles)', user:'Système', date:'2026-06-24T07:15:00Z'},
-    {id:'J4', type:'validation', produit:'PF-2310', msg:'Phase validation démarrée — approbation A. Bernard', user:'A. Bernard', date:'2026-06-18T10:40:00Z'},
-    {id:'J5', type:'modification', produit:'PF-1102', msg:'CDC v0.3 déposé — signature en attente', user:'J. Petit', date:'2026-06-20T16:05:00Z'}
+    {id:'J1', type:'creation', produit:'Pi085-510-DC001', msg:'Plan Cycle ORC Rev G importé — Évaporateur connexion turbine modifiée DN150→DN125', user:'LE DELEY M', date:'2026-06-19T00:00:00Z'},
+    {id:'J2', type:'creation', produit:'Pi085-511-DC001', msg:'Plan Chassis 180LTV3 Rev G importé — BOM triée, supports drycoolers, cheminées câbles ajoutés', user:'LE DELEY M', date:'2026-06-16T00:00:00Z'},
+    {id:'J3', type:'validation', produit:'Pi085-510-DC001', msg:'Approbation Rev G — Le Ruyet (Pôle Produit) — Signature numérique', user:'Le Ruyet', date:'2026-06-19T00:00:00Z'},
+    {id:'J4', type:'validation', produit:'Pi085-511-DC001', msg:'Approbation Rev G — Le Ruyet (Pôle Produit) — Signature numérique', user:'Le Ruyet', date:'2026-06-16T00:00:00Z'},
+    {id:'J5', type:'eco', produit:'Pi085-510-DC001', msg:'Rev F→G : Connexion évaporateur→turbine changée de DN150 à DN125 (zones 2-F3, 2-F4, 5-C7)', user:'LE DELEY M', date:'2026-06-19T00:00:00Z'},
+    {id:'J6', type:'eco', produit:'Pi085-511-DC001', msg:'Rev E→F : Remplacement IPN120 par UPN120, oblong holes sur UPN, 34xM8 cadre extérieur, chemins câbles 50x35', user:'LE DELEY M', date:'2025-02-21T00:00:00Z'},
+    {id:'J7', type:'eco', produit:'Pi085-510-DC001', msg:'Rev E→F : Connexion bridée lubrification sur tank, switch PN25/40 pour connexions turbine', user:'LE DELEY M', date:'2026-06-03T00:00:00Z'},
+    {id:'J8', type:'eco', produit:'Pi085-511-DC001', msg:'Rev D→E : Remplacement IPN120 par UPN120, 2 trous Ø16mm sur UPN, câbles tray 50x35 non soudé', user:'LE DELEY M', date:'2025-02-21T00:00:00Z'}
   ];
 
   saveDB();
@@ -1289,9 +1334,21 @@ loadDB();
   background:#00455a;z-index:1000;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:24px">
-  <svg width="48" height="58" viewBox="0 0 48 58" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 54 C10 54 4 38 14 26 C20 19 30 17 32 10 C34 4 30 0 30 0 C30 0 44 10 40 24 C38 32 28 34 26 42 C24 48 26 54 26 54Z" fill="white" opacity="0.9"/>
-    <path d="M2 50 C2 50 0 36 10 26 C16 20 24 18 26 12 C28 7 25 3 25 3 C25 3 18 14 16 22 C14 30 8 38 5 44 C3 48 2 50 2 50Z" fill="white" opacity="0.55"/>
+  <svg width="80" height="88" viewBox="0 0 80 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gL1" x1="0" y1="88" x2="40" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#0086c2"/>
+        <stop offset="100%" stop-color="#2aa99e"/>
+      </linearGradient>
+      <linearGradient id="gL2" x1="20" y1="88" x2="70" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#0086c2"/>
+        <stop offset="100%" stop-color="#2aa99e"/>
+      </linearGradient>
+    </defs>
+    <!-- Feuille arrière gauche — plus petite -->
+    <path d="M8 86 C7 80 3 68 5 52 C7 37 16 32 18 20 C19 11 17 4 17 4 C17 4 11 11 9 22 C6 33 3 52 1 66 C0 74 0 86 0 86 Z" fill="url(#gL1)" opacity="0.52"/>
+    <!-- Feuille principale droite — grande et élancée -->
+    <path d="M42 87 C40 79 35 65 37 47 C39 30 52 25 54 10 C55 2 52 0 52 0 C52 0 66 9 63 26 C60 39 47 43 45 58 C43 69 43 87 42 87 Z" fill="url(#gL2)" opacity="0.95"/>
   </svg>
   <div style="text-align:center">
     <div style="font-family:'Abel',sans-serif;font-size:32px;color:white;letter-spacing:.08em">ENOGIA</div>
