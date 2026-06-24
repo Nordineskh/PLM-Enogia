@@ -1,0 +1,110 @@
+name: Deploy PLM → GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1 — Vérification qualité
+  # ─────────────────────────────────────────────
+  quality:
+    name: Vérification qualité
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Vérifier que index.html existe
+        run: |
+          if [ ! -f public/index.html ]; then
+            echo "❌ public/index.html introuvable"
+            exit 1
+          fi
+          echo "✅ public/index.html trouvé ($(wc -c < public/index.html) bytes)"
+
+      - name: Vérifier la taille du fichier
+        run: |
+          SIZE=$(wc -c < public/index.html)
+          echo "Taille : $SIZE bytes"
+          if [ "$SIZE" -lt 10000 ]; then
+            echo "❌ Fichier trop petit — probable corruption"
+            exit 1
+          fi
+          echo "✅ Taille OK"
+
+      - name: Résumé qualité
+        run: |
+          echo "### ✅ Contrôles qualité passés" >> $GITHUB_STEP_SUMMARY
+          echo "- index.html présent et valide" >> $GITHUB_STEP_SUMMARY
+          echo "- Taille fichier : $(wc -c < public/index.html) bytes" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────
+  # JOB 2 — Déploiement GitHub Pages
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Déploiement GitHub Pages
+    needs: quality
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Injecter variables d'environnement Firebase
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        run: |
+          # Injection des secrets Firebase dans index.html si définis
+          if [ -n "$FIREBASE_API_KEY" ]; then
+            sed -i "s|__FIREBASE_API_KEY__|$FIREBASE_API_KEY|g" public/index.html
+            sed -i "s|__FIREBASE_PROJECT_ID__|$FIREBASE_PROJECT_ID|g" public/index.html
+            sed -i "s|__FIREBASE_APP_ID__|$FIREBASE_APP_ID|g" public/index.html
+            echo "✅ Variables Firebase injectées"
+          else
+            echo "ℹ️ Pas de config Firebase — mode window.storage"
+          fi
+
+      - name: Ajouter métadonnées de déploiement
+        run: |
+          DEPLOY_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          COMMIT_SHA="${{ github.sha }}"
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          sed -i "s|v2.4.1|v2.4.1 · $SHORT_SHA|g" public/index.html
+          echo "✅ SHA $SHORT_SHA injecté"
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public/
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Résumé déploiement
+        run: |
+          echo "### 🚀 Déploiement réussi" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL** : ${{ steps.deploy.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit** : ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Déclenché par** : ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date** : $(date -u)" >> $GITHUB_STEP_SUMMARY

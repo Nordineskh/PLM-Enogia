@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLM Enogia — Source unique de vérité</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Abel&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Palette officielle Enogia — charte graphique */
+  --navy: #00455a;
+  --navy-light: #005570;
+  --navy-xlight: #006885;
+  --turq: #2aa99e;
+  --turq-light: #e6f7f6;
+  --turq-dark: #1d8a81;
+  --blue: #0086c2;
+  --blue-light: #e0f2fa;
+  --white: #FFFFFF;
+  --off: #F4F7F8;
+  --border: #d8e4e8;
+  --text: #213c47;
+  --muted: #5a7a86;
+  --danger: #C9363C;
+  --danger-bg: #FEF0F0;
+  --warn: #B07510;
+  --warn-bg: #FFF8E6;
+  --ok: #1d8a81;
+  --ok-bg: #e6f7f6;
+  --info: #0086c2;
+  --info-bg: #e0f2fa;
+  --r8: 8px;
+  --r12: 12px;
+  --shadow: 0 1px 4px rgba(0,69,90,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Roboto',-apple-system,sans-serif;font-size:13px;background:var(--off);color:var(--text);display:flex;height:100vh;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:200px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow-y:auto}
+.logo{padding:16px 14px;border-bottom:1px solid var(--navy-light)}
+.logo-badge{background:var(--turq);color:white;font-size:11px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:.1em;font-family:"Abel",sans-serif}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.45);margin-top:5px;font-family:"Roboto",sans-serif;font-weight:300;letter-spacing:.04em}
+.nav-section{padding:12px 10px 4px;font-size:9px;font-weight:500;color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase;font-family:"Roboto",sans-serif}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;color:rgba(255,255,255,.65);font-size:12px;border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{color:white;background:var(--navy-light)}
+.nav-item.active{color:white;background:rgba(42,169,158,.18);border-left-color:var(--turq)}
+.nav-item .icon{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--danger);color:white;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:600}
+.nav-badge.warn{background:var(--warn)}
+.sidebar-footer{margin-top:auto;padding:12px 14px;border-top:1px solid var(--navy-light);font-size:11px;color:rgba(255,255,255,.35)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--turq);display:inline-block;margin-right:5px}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:white;border-bottom:2px solid var(--turq);padding:0 20px;height:54px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.topbar h1{font-size:17px;font-weight:400;font-family:"Abel",sans-serif;color:var(--navy);letter-spacing:.02em}
+.topbar .sub{font-size:12px;color:var(--muted)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.btn{padding:6px 14px;border-radius:var(--r8);font-size:12px;cursor:pointer;border:1px solid var(--border);background:white;color:var(--text);display:inline-flex;align-items:center;gap:5px}
+.btn:hover{background:var(--off)}
+.btn.primary{background:var(--turq);color:white;border-color:var(--turq);font-weight:500}
+.btn.primary:hover{background:var(--turq-dark);color:white;border-color:var(--turq-dark)}
+.btn.danger{background:var(--danger);color:white;border-color:var(--danger)}
+
+.content{flex:1;overflow-y:auto;padding:20px}
+.page{display:none}.page.active{display:block}
+
+/* CARDS & LAYOUT */
+.card{background:white;border-radius:var(--r12);border:1px solid var(--border);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-title{font-size:15px;font-weight:400;font-family:"Abel",sans-serif;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:7px;letter-spacing:.02em}
+.card-title .icon{color:var(--turq);font-size:15px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+
+/* METRIC CARDS */
+.metric{background:white;border-radius:var(--r8);border:1px solid var(--border);padding:14px;box-shadow:var(--shadow)}
+.metric .lbl{font-size:10px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;font-weight:500}
+.metric .val{font-size:28px;font-weight:400;font-family:"Abel",sans-serif;color:var(--navy)}
+.metric .delta{font-size:11px;margin-top:3px}
+.delta.ok{color:var(--ok)}.delta.warn{color:var(--warn)}.delta.danger{color:var(--danger)}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{text-align:left;padding:8px 10px;font-size:10px;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border);background:#eef4f6;text-transform:uppercase;letter-spacing:.05em;font-family:"Roboto",sans-serif}
+td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.clickable:hover td{background:#F0F4FF;cursor:pointer}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.b-r{background:var(--danger-bg);color:var(--danger)}
+.b-o{background:var(--warn-bg);color:var(--warn)}
+.b-g{background:var(--ok-bg);color:var(--ok)}
+.b-b{background:var(--info-bg);color:var(--info)}
+.b-gray{background:#F1F3F6;color:var(--muted)}
+.b-navy{background:var(--navy);color:white}
+.b-turq{background:var(--turq-light);color:var(--turq-dark);border:1px solid rgba(42,169,158,.25)}
+
+/* STATUS DOT */
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;flex-shrink:0}
+.dot-g{background:#0E7A56}.dot-o{background:#C47B0A}.dot-r{background:#D63B3B}.dot-b{background:#1B5FA8}
+
+/* FLAGS */
+.flag-row{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:var(--r8);margin-bottom:6px;font-size:12px}
+.flag-row.crit{background:var(--danger-bg);border:1px solid #F5C0C0}
+.flag-row.warn{background:var(--warn-bg);border:1px solid #FAD98A}
+.flag-row.info{background:var(--info-bg);border:1px solid #BDDAF7}
+.flag-row .fi{font-size:15px;flex-shrink:0;margin-top:1px}
+.flag-row .fm{font-weight:600;margin-bottom:2px}
+.flag-row .fs{color:var(--muted);font-size:11px}
+
+/* BOM TREE */
+.bom-node{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:12px}
+.bom-node:hover{background:var(--off)}
+.bom-node.selected{background:#EBF2FD}
+.bom-children{padding-left:18px;border-left:1.5px solid var(--border);margin-left:10px}
+
+/* TIMELINE */
+.tl-item{display:flex;gap:12px;margin-bottom:12px}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.tl-dot.g{background:var(--ok)}.tl-dot.o{background:var(--warn)}.tl-dot.r{background:var(--danger)}.tl-dot.b{background:var(--turq)}
+.tl-line{width:1.5px;background:var(--border);margin:0 auto}
+.tl-body{flex:1}
+.tl-title{font-size:12px;font-weight:600;color:var(--text)}
+.tl-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.tl-time{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* INTEG */
+.integ-card{background:white;border:1px solid var(--border);border-radius:var(--r8);padding:12px;display:flex;align-items:center;gap:10px}
+.integ-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.integ-body{flex:1;min-width:0}
+.integ-name{font-size:12px;font-weight:600}
+.integ-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.integ-status{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
+
+/* FORMS */
+input,select,textarea{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r8);font-size:12px;font-family:inherit;background:white;color:var(--text);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--turq);box-shadow:0 0 0 2px rgba(42,169,158,.15)}
+label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.field{margin-bottom:12px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* PROGRESS BAR */
+.pbar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.pfill{height:100%;border-radius:3px;transition:width .4s}
+
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab{padding:8px 16px;font-size:12px;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500}
+.tab.active{color:var(--turq-dark);border-bottom-color:var(--turq);font-weight:500}
+.tab:hover:not(.active){color:var(--text)}
+.tabp{display:none}.tabp.active{display:block}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:white;border-radius:var(--r12);width:560px;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-header h3{font-size:15px;font-weight:600;color:var(--navy)}
+.modal-body{padding:20px}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.close-btn{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);padding:2px 6px}
+.close-btn:hover{color:var(--text)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:white;padding:10px 16px;border-radius:var(--r8);font-size:12px;z-index:200;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{background:var(--ok)}
+.toast.err{background:var(--danger)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+      <svg width="22" height="26" viewBox="0 0 22 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 24 C4 24 2 18 6 13 C8 10 12 9 13 6 C14 3 12 1 12 1 C12 1 18 5 16 12 C15 16 11 17 10 20 C9 22 10 24 10 24Z" fill="white" opacity="0.9"/>
+        <path d="M1 22 C1 22 0 17 4 13 C6 11 9 10 10 8 C11 6 10 4 10 4 C10 4 7 8 6 12 C5 15 3 18 2 20 C1.5 21 1 22 1 22Z" fill="white" opacity="0.6"/>
+      </svg>
+      <span class="logo-badge">ENOGIA</span>
+    </div>
+    <div class="logo-sub">PLM · Source unique de vérité</div>
+  </div>
+
+  <div class="nav-section">Vue globale</div>
+  <div class="nav-item active" onclick="nav('dashboard')">
+    <span class="icon">⊞</span>Tableau de bord
+    <span class="nav-badge" id="nb-flags">3</span>
+  </div>
+
+  <div class="nav-section">Données produit</div>
+  <div class="nav-item" onclick="nav('produits')">
+    <span class="icon">◈</span>Références produit
+  </div>
+  <div class="nav-item" onclick="nav('bom')">
+    <span class="icon">⊙</span>Nomenclatures BOM
+    <span class="nav-badge warn" id="nb-bom">2</span>
+  </div>
+  <div class="nav-item" onclick="nav('variantes')">
+    <span class="icon">⊛</span>Variantes & config.
+  </div>
+
+  <div class="nav-section">Évolutions</div>
+  <div class="nav-item" onclick="nav('eco')">
+    <span class="icon">△</span>Demandes ECR / ECO
+    <span class="nav-badge" id="nb-eco">5</span>
+  </div>
+  <div class="nav-item" onclick="nav('validations')">
+    <span class="icon">✓</span>Validations & approbations
+  </div>
+
+  <div class="nav-section">Documents</div>
+  <div class="nav-item" onclick="nav('documents')">
+    <span class="icon">◻</span>GED & versioning
+    <span class="nav-badge warn" id="nb-docs">2</span>
+  </div>
+
+  <div class="nav-section">Fournisseurs</div>
+  <div class="nav-item" onclick="nav('fournisseurs')">
+    <span class="icon">◇</span>Fournisseurs & qualif.
+  </div>
+
+  <div class="nav-section">Intégrations</div>
+  <div class="nav-item" onclick="nav('integrations')">
+    <span class="icon">⊕</span>CAO · ERP · MES
+  </div>
+
+  <div class="nav-section">Traçabilité</div>
+  <div class="nav-item" onclick="nav('tracabilite')">
+    <span class="icon">≡</span>Journal des décisions
+  </div>
+  <div class="nav-item" onclick="nav('flags')">
+    <span class="icon">⚑</span>Flags IA
+    <span class="nav-badge" id="nb-ia">8</span>
+  </div>
+
+  <div class="sidebar-footer">
+    <div><span class="sync-dot"></span>Synchronisé · v2.4.1</div>
+    <div style="margin-top:4px">Enogia PLM © 2026</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div id="page-title" style="font-size:17px;font-weight:400;font-family:'Abel',sans-serif;color:var(--navy);letter-spacing:.02em">Tableau de bord</div>
+      <div class="sub" id="page-sub">Vue globale — données en temps réel</div>
+    </div>
+    <div class="tb-right">
+      <button class="btn" onclick="openModal('modal-produit')">+ Nouveau produit</button>
+      <button class="btn" onclick="openModal('modal-eco')">+ ECR / ECO</button>
+      <button class="btn primary" onclick="runIA()">⚡ Analyse IA</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div id="flag-banner"></div>
+
+      <div class="grid5" style="margin-bottom:14px">
+        <div class="metric"><div class="lbl">Références actives</div><div class="val" id="m-refs">0</div><div class="delta ok" id="m-refs-d"></div></div>
+        <div class="metric"><div class="lbl">ECR/ECO en cours</div><div class="val" id="m-eco">0</div><div class="delta warn" id="m-eco-d"></div></div>
+        <div class="metric"><div class="lbl">BOM incomplètes</div><div class="val" id="m-bom">0</div><div class="delta danger" id="m-bom-d"></div></div>
+        <div class="metric"><div class="lbl">Docs non signés</div><div class="val" id="m-docs">0</div><div class="delta warn"></div></div>
+        <div class="metric"><div class="lbl">Flags IA actifs</div><div class="val" id="m-flags">0</div><div class="delta danger"></div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title"><span class="icon">◈</span>Dernières références modifiées</div>
+          <div id="dash-produits"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon">△</span>ECR / ECO récents</div>
+          <div id="dash-eco"></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title"><span class="icon">⊕</span>Statut intégrations</div>
+          <div id="dash-integ"></div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="icon">≡</span>Journal récent</div>
+          <div id="dash-journal" style="max-height:200px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUITS -->
+    <div class="page" id="page-produits">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <input type="text" id="search-produits" placeholder="Rechercher une référence, désignation..." style="width:280px" oninput="renderProduits()">
+          <select id="filter-phase" style="width:160px" onchange="renderProduits()">
+            <option value="">Toutes les phases</option>
+            <option>Concept</option><option>Développement</option><option>Validation</option><option>Production</option><option>Fin de vie</option>
+          </select>
+          <select id="filter-type" style="width:160px" onchange="renderProduits()">
+            <option value="">Tous types</option>
+            <option>Catalogue</option><option>ETO</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr>
+            <th style="width:90px">Référence</th>
+            <th style="width:160px">Désignation</th>
+            <th style="width:80px">Type</th>
+            <th style="width:90px">Phase</th>
+            <th style="width:80px">Révision</th>
+            <th style="width:80px">Responsable</th>
+            <th style="width:90px">Dernière MAJ</th>
+            <th style="width:70px">Statut</th>
+          </tr></thead>
+          <tbody id="produits-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BOM -->
+    <div class="page" id="page-bom">
+      <div class="grid2">
+        <div class="card" style="min-height:400px">
+          <div class="card-title"><span class="icon">⊙</span>Sélectionner un produit</div>
+          <select id="bom-select" onchange="renderBOM()" style="margin-bottom:12px">
+            <option value="">— Choisir —</option>
+          </select>
+          <div id="bom-tree"></div>
+        </div>
+        <div class="card" id="bom-detail-card" style="display:none">
+          <div class="card-title"><span class="icon">⊙</span>Détail composant</div>
+          <div id="bom-detail"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIANTES -->
+    <div class="page" id="page-variantes">
+      <div class="card">
+        <div class="card-title"><span class="icon">⊛</span>Configurateur de variantes</div>
+        <div id="variantes-content"></div>
+      </div>
+    </div>
+
+    <!-- ECO -->
+    <div class="page" id="page-eco">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('eco','en-cours')">En cours</button>
+        <button class="tab" onclick="switchTab('eco','approuvees')">Approuvées</button>
+        <button class="tab" onclick="switchTab('eco','rejetees')">Rejetées</button>
+        <button class="tab" onclick="switchTab('eco','toutes')">Toutes</button>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th style="width:80px">N° ECR/ECO</th>
+            <th style="width:80px">Type</th>
+            <th style="width:130px">Titre</th>
+            <th style="width:80px">Produit</th>
+            <th style="width:70px">Priorité</th>
+            <th style="width:80px">Demandeur</th>
+            <th style="width:90px">Date</th>
+            <th style="width:90px">Statut</th>
+          </tr></thead>
+          <tbody id="eco-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VALIDATIONS -->
+    <div class="page" id="page-validations">
+      <div class="card">
+        <div class="card-title"><span class="icon">✓</span>Circuit de validation — en attente de signature</div>
+        <div id="validations-content"></div>
+      </div>
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="page" id="page-documents">
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+        <input type="text" placeholder="Rechercher un document..." style="width:260px" oninput="renderDocs()">
+        <select style="width:160px" onchange="renderDocs()">
+          <option>Tous types</option><option>Spécification</option><option>Plan</option><option>Rapport</option><option>CDC</option><option>Procédure</option>
+        </select>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th style="width:180px">Document</th>
+            <th style="width:90px">Type</th>
+            <th style="width:80px">Produit</th>
+            <th style="width:60px">Version</th>
+            <th style="width:80px">Auteur</th>
+            <th style="width:90px">Date</th>
+            <th style="width:80px">Statut</th>
+            <th style="width:60px">Flag</th>
+          </tr></thead>
+          <tbody id="docs-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- FOURNISSEURS -->
+    <div class="page" id="page-fournisseurs">
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th style="width:130px">Fournisseur</th>
+            <th style="width:120px">Famille composants</th>
+            <th style="width:100px">Produits liés</th>
+            <th style="width:80px">Qualification</th>
+            <th style="width:70px">Risque IA</th>
+            <th style="width:80px">Prochain audit</th>
+            <th style="width:70px">Statut</th>
+          </tr></thead>
+          <tbody id="fourn-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INTEGRATIONS -->
+    <div class="page" id="page-integrations">
+      <div class="card">
+        <div class="card-title"><span class="icon">⊕</span>Continuité numérique — statut des flux</div>
+        <div class="grid3" id="integ-cards" style="margin-bottom:16px"></div>
+        <div class="card-title" style="margin-top:8px"><span class="icon">≡</span>Journal de synchronisation</div>
+        <div id="integ-log"></div>
+      </div>
+    </div>
+
+    <!-- TRACABILITE -->
+    <div class="page" id="page-tracabilite">
+      <div class="card">
+        <div class="card-title"><span class="icon">≡</span>Journal complet des décisions, modifications et validations</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <select style="width:180px" id="filter-journal" onchange="renderJournal()">
+            <option value="">Tous les événements</option>
+            <option value="creation">Création</option>
+            <option value="modification">Modification</option>
+            <option value="validation">Validation</option>
+            <option value="eco">ECR/ECO</option>
+            <option value="sync">Synchronisation</option>
+          </select>
+          <select style="width:150px" id="filter-journal-prod" onchange="renderJournal()">
+            <option value="">Tous les produits</option>
+          </select>
+        </div>
+        <div id="journal-list"></div>
+      </div>
+    </div>
+
+    <!-- FLAGS IA -->
+    <div class="page" id="page-flags">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-size:13px;color:var(--muted)" id="flags-summary"></div>
+        <button class="btn primary" onclick="runIA()">⚡ Relancer l'analyse IA</button>
+      </div>
+      <div id="flags-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-bg" id="modal-produit">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouveau produit</h3>
+      <button class="close-btn" onclick="closeModal('modal-produit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="field"><label>Référence</label><input id="np-ref" placeholder="ex: PF-2500"></div>
+        <div class="field"><label>Désignation</label><input id="np-name" placeholder="Nom du produit"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Type</label>
+          <select id="np-type"><option>Catalogue</option><option>ETO</option></select>
+        </div>
+        <div class="field"><label>Phase initiale</label>
+          <select id="np-phase"><option>Concept</option><option>Développement</option><option>Validation</option><option>Production</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>Responsable</label><input id="np-resp" placeholder="Prénom Nom"></div>
+        <div class="field"><label>Famille produit</label><input id="np-famille" placeholder="ex: ORC, Échangeur..."></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="np-desc" rows="3" placeholder="Contexte, objectifs..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-produit')">Annuler</button>
+      <button class="btn primary" onclick="saveProduit()">Créer le produit</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-eco">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Nouvelle demande ECR / ECO</h3>
+      <button class="close-btn" onclick="closeModal('modal-eco')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="field"><label>Type</label>
+          <select id="eco-type"><option>ECR — Demande de changement</option><option>ECO — Ordre de changement</option></select>
+        </div>
+        <div class="field"><label>Priorité</label>
+          <select id="eco-prio"><option>Critique</option><option>Haute</option><option>Normale</option><option>Basse</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Titre</label><input id="eco-titre" placeholder="Description courte du changement"></div>
+      <div class="form-row">
+        <div class="field"><label>Produit concerné</label><select id="eco-prod"></select></div>
+        <div class="field"><label>Demandeur</label><input id="eco-demandeur" placeholder="Prénom Nom"></div>
+      </div>
+      <div class="field"><label>Description détaillée</label><textarea id="eco-desc" rows="4" placeholder="Raison du changement, impact attendu..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-eco')">Annuler</button>
+      <button class="btn primary" onclick="saveECO()">Soumettre</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-detail-produit">
+  <div class="modal" style="width:640px">
+    <div class="modal-header">
+      <h3 id="mdp-title">Détail produit</h3>
+      <button class="close-btn" onclick="closeModal('modal-detail-produit')">✕</button>
+    </div>
+    <div class="modal-body" id="mdp-body"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-detail-produit')">Fermer</button>
+      <button class="btn primary" onclick="openModal('modal-eco')">Créer un ECO lié</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA STORE — source unique de vérité
+// ============================================================
+var DB = {
+  produits: [],
+  bom: {},
+  eco: [],
+  documents: [],
+  fournisseurs: [],
+  journal: [],
+  flags: [],
+  integrations: []
+};
+
+var STORAGE_KEY = 'enogia-plm-v2';
+
+async function loadDB() {
+  try {
+    var r = await window.storage.get(STORAGE_KEY);
+    if (r && r.value) {
+      var saved = JSON.parse(r.value);
+      DB = Object.assign(DB, saved);
+    }
+  } catch(e) {}
+  if (!DB.produits.length) seedData();
+  renderAll();
+}
+
+async function saveDB() {
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(DB));
+  } catch(e) {}
+}
+
+function logEvent(type, produit, msg, user) {
+  DB.journal.unshift({
+    id: 'J' + Date.now(),
+    type: type,
+    produit: produit || '—',
+    msg: msg,
+    user: user || 'Système',
+    date: new Date().toISOString()
+  });
+  if (DB.journal.length > 200) DB.journal = DB.journal.slice(0, 200);
+}
+
+// ============================================================
+// SEED DATA
+// ============================================================
+function seedData() {
+  DB.produits = [
+    {id:'PF-2201', name:'Échangeur compact EC-40', type:'Catalogue', phase:'Développement', rev:'B', resp:'M. Durand', famille:'Échangeur', statut:'Attente', maj:'2026-06-12', desc:'Échangeur thermique compact pour ORC basse température'},
+    {id:'PF-1845', name:'Turbine ORC série A', type:'Catalogue', phase:'Production', rev:'D', resp:'C. Martin', famille:'Turbine', statut:'Validé', maj:'2026-05-20', desc:'Turbine axiale mono-étagée pour ORC 20-50kW'},
+    {id:'PF-2310', name:'Module ORC V2 50kW', type:'ETO', phase:'Validation', rev:'A', resp:'A. Bernard', famille:'ORC', statut:'En cours', maj:'2026-06-18', desc:'Module ORC complet 50kW sur skid, configuration client'},
+    {id:'PF-1102', name:'Compresseur R410a', type:'Catalogue', phase:'Concept', rev:'—', resp:'J. Petit', famille:'Compresseur', statut:'Actif', maj:'2026-06-20', desc:'Compresseur à vis pour cycle de chaleur R410a'},
+    {id:'PF-2401', name:'Régulateur smart RG-100', type:'ETO', phase:'Développement', rev:'A', resp:'M. Durand', famille:'Régulation', statut:'Bloqué', maj:'2026-06-10', desc:'Régulateur intelligent avec supervision IoT'},
+    {id:'PF-0890', name:'Pompe HT 2019', type:'Catalogue', phase:'Fin de vie', rev:'F', resp:'—', famille:'Pompe', statut:'Archivé', maj:'2024-01-05', desc:'Pompe haute température — fin de commercialisation'}
+  ];
+
+  DB.bom = {
+    'PF-2201': {
+      ref:'PF-2201', children: [
+        {ref:'PF-2201-001', name:'Corps principal Inox 316L', qty:1, unit:'pce', fourn:'Thermoflow SAS', statut:'ok', children:[
+          {ref:'PF-2201-001-A', name:'Plaque étanchéité', qty:4, unit:'pce', fourn:'Thermoflow SAS', statut:'ok', children:[]},
+          {ref:'PF-2201-001-B', name:'Joint torique EPDM Ø60', qty:8, unit:'pce', fourn:'Thermoflow SAS', statut:'ok', children:[]}
+        ]},
+        {ref:'PF-2201-002', name:'Module hydraulique', qty:1, unit:'pce', fourn:'', statut:'warn', children:[
+          {ref:'PF-2201-002-A', name:'Vanne 3 voies DN25', qty:2, unit:'pce', fourn:'', statut:'error', children:[]},
+          {ref:'PF-2201-002-B', name:'Pompe centrifuge 0.5kW', qty:1, unit:'pce', fourn:'', statut:'error', children:[]},
+          {ref:'PF-2201-002-C', name:'Régulateur de débit', qty:1, unit:'pce', fourn:'', statut:'error', children:[]}
+        ]},
+        {ref:'PF-2201-003', name:'Carte électronique CTL-04', qty:1, unit:'pce', fourn:'InnoParts GmbH', statut:'warn', children:[]}
+      ]
+    },
+    'PF-1845': {
+      ref:'PF-1845', children:[
+        {ref:'PF-1845-001', name:'Rotor turbine Ti6Al4V', qty:1, unit:'pce', fourn:'TurboComp Ltd', statut:'ok', children:[]},
+        {ref:'PF-1845-002', name:'Stator Inox 316', qty:1, unit:'pce', fourn:'TurboComp Ltd', statut:'ok', children:[]},
+        {ref:'PF-1845-003', name:'Palier magnétique', qty:2, unit:'pce', fourn:'TurboComp Ltd', statut:'ok', children:[]}
+      ]
+    }
+  };
+
+  DB.eco = [
+    {id:'ECO-2026-041', type:'ECO', titre:'Changement matière corps — PF-2201', produit:'PF-2201', prio:'Haute', demandeur:'M. Durand', date:'2026-06-15', statut:'En cours', desc:'Passage de l\'acier S235 à Inox 316L pour tenue en corrosion'},
+    {id:'ECR-2026-038', type:'ECR', titre:'Ajout variante basse temp. ORC V2', produit:'PF-2310', prio:'Normale', demandeur:'A. Bernard', date:'2026-06-10', statut:'En attente approbation', desc:'Demande variante 30kW pour client projet Alpes Maritimes'},
+    {id:'ECO-2026-035', type:'ECO', titre:'Remplacement capteur pression CTL-04', produit:'PF-2401', prio:'Critique', demandeur:'Direction', date:'2026-06-08', statut:'Bloqué', desc:'InnoParts en audit — capteur indisponible'},
+    {id:'ECR-2026-030', type:'ECR', titre:'Certification ATEX zone 2 turbine A', produit:'PF-1845', prio:'Haute', demandeur:'C. Martin', date:'2026-05-28', statut:'Approuvé', desc:'Ajout certification ATEX zone 2 pour client pétrochimie'},
+    {id:'ECO-2026-022', type:'ECO', titre:'Révision plan assemblage compresseur', produit:'PF-1102', prio:'Normale', demandeur:'J. Petit', date:'2026-05-15', statut:'Approuvé', desc:'Correction cotes plan assemblage suite retour atelier'}
+  ];
+
+  DB.documents = [
+    {id:'DOC-001', name:'Spécification technique EC-40', type:'Spécification', produit:'PF-2201', version:'v2.1', auteur:'M. Durand', date:'2026-06-12', statut:'Signé', flag:'ok'},
+    {id:'DOC-002', name:'Rapport de validation ORC V2', type:'Rapport', produit:'PF-2310', version:'—', auteur:'—', date:'—', statut:'MANQUANT', flag:'critical'},
+    {id:'DOC-003', name:'Fiche données Turbine série A', type:'Datasheet', produit:'PF-1845', version:'v3.4', auteur:'C. Martin', date:'2026-03-15', statut:'Signé', flag:'ok'},
+    {id:'DOC-004', name:'CDC Compresseur R410a', type:'CDC', produit:'PF-1102', version:'v0.3', auteur:'J. Petit', date:'2026-06-20', statut:'Non signé', flag:'warn'},
+    {id:'DOC-005', name:'Plan de validation ORC V2', type:'Procédure', produit:'PF-2310', version:'v1.0', auteur:'A. Bernard', date:'2026-06-01', statut:'En attente', flag:'warn'},
+    {id:'DOC-006', name:'Plan de substitution RG-100', type:'Plan', produit:'PF-2401', version:'—', auteur:'—', date:'—', statut:'MANQUANT', flag:'critical'}
+  ];
+
+  DB.fournisseurs = [
+    {id:'F-001', name:'Thermoflow SAS', famille:'Échangeurs, corps', produits:['PF-2201','PF-0890'], qualif:'Qualifié', risque:'Faible', audit:'2026-12-01', statut:'ok'},
+    {id:'F-002', name:'InnoParts GmbH', famille:'Régulateurs, capteurs', produits:['PF-2401','PF-2201'], qualif:'Audit en cours', risque:'Critique', audit:'2026-07-15', statut:'error'},
+    {id:'F-003', name:'TurboComp Ltd', famille:'Turbines, compresseurs', produits:['PF-1845','PF-1102'], qualif:'Qualifié', risque:'Faible', audit:'2027-01-10', statut:'ok'},
+    {id:'F-004', name:'ORC Systems', famille:'Modules ORC', produits:['PF-2310'], qualif:'Probatoire', risque:'Moyen', audit:'2026-08-20', statut:'warn'},
+    {id:'F-005', name:'Non défini', famille:'Vannes, pompes, régulation', produits:['PF-2201'], qualif:'Manquant', risque:'Critique', audit:'—', statut:'error'}
+  ];
+
+  DB.integrations = [
+    {id:'INT-001', name:'SolidWorks PDM', type:'CAO', icon:'⬡', statut:'sync', dernier:'2026-06-24 08:42', detail:'142 fichiers synchronisés · Révision courante importée', couleur:'#1B5FA8'},
+    {id:'INT-002', name:'ERP (Sage X3)', type:'ERP', icon:'◈', statut:'sync', dernier:'2026-06-24 07:15', detail:'BOM transmises · 6 articles mis à jour · Stock cohérent', couleur:'#0E7A56'},
+    {id:'INT-003', name:'MES Atelier', type:'MES', icon:'⚙', statut:'warn', dernier:'2026-06-23 14:30', detail:'PF-2401 bloqué — gamme opératoire non transmise', couleur:'#C47B0A'},
+    {id:'INT-004', name:'CPQ (devis)', type:'CPQ', icon:'◻', statut:'offline', dernier:'2026-06-20 09:00', detail:'Connexion non configurée — module CPQ en attente', couleur:'#6B7A94'}
+  ];
+
+  DB.flags = [
+    {id:'F1', niveau:'critical', titre:'BOM incomplète — PF-2201', desc:'3 composants critiques sans fournisseur assigné depuis 47 jours. Aucune alerte remontée manuellement.', produit:'PF-2201', resolu:false},
+    {id:'F2', niveau:'critical', titre:'Document manquant en validation — PF-2310', desc:'Rapport de validation obligatoire absent. Produit à 55% sans ce document clé. Risque non-conformité.', produit:'PF-2310', resolu:false},
+    {id:'F3', niveau:'critical', titre:'Fournisseur unique bloquant — PF-2401', desc:'InnoParts GmbH en audit sans plan de substitution. Dépendance totale non adressée.', produit:'PF-2401', resolu:false},
+    {id:'F4', niveau:'warn', titre:'Retard non signalé — PF-2201', desc:'Délai de phase dépassé de 12 jours. Aucune mise à jour de statut.', produit:'PF-2201', resolu:false},
+    {id:'F5', niveau:'warn', titre:'Fournisseur probatoire sur validation — PF-2310', desc:'ORC Systems non qualifié. Risque de requalification tardive non anticipé.', produit:'PF-2310', resolu:false},
+    {id:'F6', niveau:'warn', titre:'CDC non signé — PF-1102', desc:'Cahier des charges v0.3 non signé depuis 4 jours. Phase concept démarrée sans validation formelle.', produit:'PF-1102', resolu:false},
+    {id:'F7', niveau:'info', titre:'Concentration de risque responsable', desc:'M. Durand assigné à 3 produits dont 2 bloqués. Risque de perte de priorité.', produit:'Tous', resolu:false},
+    {id:'F8', niveau:'info', titre:'Dossier clôture manquant — PF-0890', desc:'Archivé sans documentation REACH/recyclabilité. Risque de non-conformité réglementaire.', produit:'PF-0890', resolu:false}
+  ];
+
+  DB.journal = [
+    {id:'J1', type:'creation', produit:'PF-2401', msg:'Produit PF-2401 créé en phase développement', user:'M. Durand', date:'2026-06-10T09:00:00Z'},
+    {id:'J2', type:'eco', produit:'PF-2201', msg:'ECO-2026-041 soumis — changement matière corps', user:'M. Durand', date:'2026-06-15T14:23:00Z'},
+    {id:'J3', type:'sync', produit:'PF-1845', msg:'Synchronisation ERP réussie — BOM mise à jour (6 articles)', user:'Système', date:'2026-06-24T07:15:00Z'},
+    {id:'J4', type:'validation', produit:'PF-2310', msg:'Phase validation démarrée — approbation A. Bernard', user:'A. Bernard', date:'2026-06-18T10:40:00Z'},
+    {id:'J5', type:'modification', produit:'PF-1102', msg:'CDC v0.3 déposé — signature en attente', user:'J. Petit', date:'2026-06-20T16:05:00Z'}
+  ];
+
+  saveDB();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+var currentPage = 'dashboard';
+var pageTitles = {
+  dashboard: ['Tableau de bord','Vue globale — données en temps réel'],
+  produits: ['Références produit','Source unique de vérité — 50 à 200 références'],
+  bom: ['Nomenclatures BOM','Structures produit, composants, fournisseurs'],
+  variantes: ['Variantes & configuration','Gestion ETO — configurateur produit'],
+  eco: ['Demandes ECR / ECO','Maîtrise des évolutions produit'],
+  validations: ['Validations & approbations','Circuit de signature et décisions'],
+  documents: ['GED & versioning','Gestion documentaire centralisée'],
+  fournisseurs: ['Fournisseurs & qualification','Statut, risques, audits'],
+  integrations: ['CAO · ERP · MES','Continuité numérique — statut des flux'],
+  tracabilite: ['Journal des décisions','Traçabilité complète des modifications et validations'],
+  flags: ['Flags IA','Détection automatique d\'anomalies']
+};
+
+function nav(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  var el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + page + "'")) n.classList.add('active');
+  });
+  var t = pageTitles[page] || [page, ''];
+  var ptEl = document.getElementById('page-title'); ptEl.textContent = t[0]; ptEl.style.fontFamily='"Abel",sans-serif'; ptEl.style.fontSize='17px'; ptEl.style.fontWeight='400';
+  document.getElementById('page-sub').textContent = t[1];
+  renderPage(page);
+}
+
+function renderAll() {
+  updateNavBadges();
+  renderDashboard();
+}
+
+function renderPage(p) {
+  if (p === 'dashboard') renderDashboard();
+  else if (p === 'produits') renderProduits();
+  else if (p === 'bom') renderBOMSelect();
+  else if (p === 'variantes') renderVariantes();
+  else if (p === 'eco') renderECO();
+  else if (p === 'validations') renderValidations();
+  else if (p === 'documents') renderDocs();
+  else if (p === 'fournisseurs') renderFourn();
+  else if (p === 'integrations') renderInteg();
+  else if (p === 'tracabilite') renderJournal();
+  else if (p === 'flags') renderFlags();
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  var crit = DB.flags.filter(f => !f.resolu && f.niveau === 'critical').length;
+  var warns = DB.flags.filter(f => !f.resolu && f.niveau === 'warn').length;
+  if (crit > 0) {
+    document.getElementById('flag-banner').innerHTML =
+      '<div style="background:var(--danger-bg);border:1px solid #F5C0C0;border-radius:var(--r8);padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px">' +
+      '<span style="font-size:15px">⚑</span><strong>' + crit + ' anomalie(s) critique(s)</strong> détectée(s) automatiquement — ' + warns + ' alerte(s) additionnelle(s). ' +
+      '<span style="text-decoration:underline;cursor:pointer;margin-left:4px" onclick="nav(\'flags\')">Voir les flags →</span></div>';
+  }
+  document.getElementById('m-refs').textContent = DB.produits.filter(p => p.phase !== 'Fin de vie').length;
+  document.getElementById('m-eco').textContent = DB.eco.filter(e => e.statut !== 'Approuvé' && e.statut !== 'Rejeté').length;
+  var bomIssues = 0;
+  Object.values(DB.bom).forEach(b => countBomIssues(b.children, function(n){ bomIssues += n; }));
+  document.getElementById('m-bom').textContent = bomIssues;
+  document.getElementById('m-docs').textContent = DB.documents.filter(d => d.statut === 'Non signé' || d.statut === 'En attente').length;
+  document.getElementById('m-flags').textContent = DB.flags.filter(f => !f.resolu).length;
+
+  // produits récents
+  var recent = DB.produits.slice(0, 5);
+  document.getElementById('dash-produits').innerHTML = recent.map(p =>
+    '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px" class="clickable" onclick="showDetailProduit(\'' + p.id + '\')">' +
+    '<span style="font-weight:600;color:var(--navy);width:70px;flex-shrink:0">' + p.id + '</span>' +
+    '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + p.name + '</span>' +
+    '<span class="badge ' + phaseBadge(p.phase) + '">' + p.phase + '</span>' +
+    '</div>'
+  ).join('');
+
+  // ECO récents
+  document.getElementById('dash-eco').innerHTML = DB.eco.slice(0, 5).map(e =>
+    '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">' +
+    '<span class="badge ' + ecoBadge(e.statut) + '" style="flex-shrink:0">' + e.type + '</span>' +
+    '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + e.titre + '</span>' +
+    '<span class="badge ' + prioBadge(e.prio) + '">' + e.prio + '</span>' +
+    '</div>'
+  ).join('');
+
+  // Intégrations
+  document.getElementById('dash-integ').innerHTML = DB.integrations.map(i =>
+    '<div class="integ-card" style="margin-bottom:6px">' +
+    '<div class="integ-icon" style="background:' + i.couleur + '22;color:' + i.couleur + '">' + i.icon + '</div>' +
+    '<div class="integ-body"><div class="integ-name">' + i.name + '</div><div class="integ-sub">' + i.detail + '</div></div>' +
+    '<span class="integ-status" style="background:' + integColor(i.statut).bg + ';color:' + integColor(i.statut).fg + '">' + integLabel(i.statut) + '</span>' +
+    '</div>'
+  ).join('');
+
+  // Journal
+  document.getElementById('dash-journal').innerHTML = DB.journal.slice(0, 8).map(j => journalRow(j)).join('');
+}
+
+function countBomIssues(nodes, cb) {
+  var n = 0;
+  function walk(arr) { arr.forEach(c => { if (c.statut === 'error' || c.statut === 'warn') n++; if (c.children) walk(c.children); }); }
+  walk(nodes || []);
+  cb(n);
+}
+
+// ============================================================
+// PRODUITS
+// ============================================================
+function renderProduits() {
+  var q = (document.getElementById('search-produits')||{}).value||'';
+  var ph = (document.getElementById('filter-phase')||{}).value||'';
+  var ty = (document.getElementById('filter-type')||{}).value||'';
+  var rows = DB.produits.filter(p =>
+    (!q || p.id.toLowerCase().includes(q.toLowerCase()) || p.name.toLowerCase().includes(q.toLowerCase())) &&
+    (!ph || p.phase === ph) &&
+    (!ty || p.type === ty)
+  );
+  document.getElementById('produits-tbody').innerHTML = rows.map(p =>
+    '<tr class="clickable" onclick="showDetailProduit(\'' + p.id + '\')">' +
+    '<td style="font-weight:600;color:var(--navy)">' + p.id + '</td>' +
+    '<td title="' + p.name + '">' + p.name + '</td>' +
+    '<td><span class="badge ' + (p.type === 'ETO' ? 'b-navy' : 'b-turq') + '">' + p.type + '</span></td>' +
+    '<td><span class="badge ' + phaseBadge(p.phase) + '">' + p.phase + '</span></td>' +
+    '<td style="font-family:monospace">' + p.rev + '</td>' +
+    '<td>' + p.resp + '</td>' +
+    '<td style="color:var(--muted)">' + fmtDate(p.maj) + '</td>' +
+    '<td>' + statutDot(p.statut) + '</td>' +
+    '</tr>'
+  ).join('');
+}
+
+function showDetailProduit(id) {
+  var p = DB.produits.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('mdp-title').textContent = p.id + ' — ' + p.name;
+  var flags = DB.flags.filter(f => f.produit === id && !f.resolu);
+  var ecos = DB.eco.filter(e => e.produit === id);
+  document.getElementById('mdp-body').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+    field('Type', '<span class="badge ' + (p.type==='ETO'?'b-navy':'b-turq') + '">' + p.type + '</span>') +
+    field('Phase', '<span class="badge ' + phaseBadge(p.phase) + '">' + p.phase + '</span>') +
+    field('Révision', '<span style="font-family:monospace;font-weight:600">' + p.rev + '</span>') +
+    field('Responsable', p.resp) +
+    field('Famille', p.famille) +
+    field('Dernière MAJ', fmtDate(p.maj)) +
+    '</div>' +
+    '<div style="margin-bottom:10px;font-size:12px;color:var(--muted)">' + p.desc + '</div>' +
+    (flags.length ? '<div style="margin-bottom:10px">' + flags.map(f =>
+      '<div class="flag-row ' + (f.niveau==='critical'?'crit':'warn') + '"><span class="fi">⚑</span><div><div class="fm">' + f.titre + '</div><div class="fs">' + f.desc + '</div></div></div>'
+    ).join('') + '</div>' : '') +
+    (ecos.length ? '<div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">ECR / ECO liés</div>' +
+    ecos.map(e => '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px"><span class="badge b-b">' + e.type + '</span><span style="flex:1">' + e.titre + '</span><span class="badge ' + ecoBadge(e.statut) + '">' + e.statut + '</span></div>').join('') : '');
+  openModal('modal-detail-produit');
+}
+
+function field(l, v) {
+  return '<div><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px">' + l + '</div><div style="font-size:13px">' + v + '</div></div>';
+}
+
+// ============================================================
+// BOM
+// ============================================================
+function renderBOMSelect() {
+  var sel = document.getElementById('bom-select');
+  sel.innerHTML = '<option value="">— Choisir un produit —</option>' +
+    DB.produits.filter(p => DB.bom[p.id]).map(p =>
+      '<option value="' + p.id + '">' + p.id + ' — ' + p.name + '</option>'
+    ).join('');
+}
+
+function renderBOM() {
+  var id = document.getElementById('bom-select').value;
+  var tree = document.getElementById('bom-tree');
+  if (!id || !DB.bom[id]) { tree.innerHTML = ''; return; }
+  tree.innerHTML = renderBOMNodes(DB.bom[id].children, 0);
+}
+
+function renderBOMNodes(nodes, depth) {
+  if (!nodes || !nodes.length) return '';
+  return nodes.map(n => {
+    var icon = n.statut === 'error' ? '⚑' : n.statut === 'warn' ? '△' : '◉';
+    var col = n.statut === 'error' ? 'var(--danger)' : n.statut === 'warn' ? 'var(--warn)' : 'var(--ok)';
+    var hasChildren = n.children && n.children.length;
+    return '<div class="bom-node" onclick="selectBOMNode(' + JSON.stringify(n).replace(/"/g, '&quot;') + ')">' +
+      (hasChildren ? '▾ ' : '  ') +
+      '<span style="color:' + col + ';font-size:12px">' + icon + '</span>' +
+      '<span style="font-weight:' + (depth===0?'600':'400') + '">' + n.ref + '</span>' +
+      '<span style="color:var(--muted);margin-left:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + n.name + '</span>' +
+      '<span style="margin-left:auto;font-size:11px;color:var(--muted)">' + n.qty + ' ' + n.unit + '</span>' +
+      '</div>' +
+      (hasChildren ? '<div class="bom-children">' + renderBOMNodes(n.children, depth+1) + '</div>' : '');
+  }).join('');
+}
+
+function selectBOMNode(n) {
+  document.getElementById('bom-detail-card').style.display = 'block';
+  var statIcon = n.statut === 'error' ? '⚑ Fournisseur manquant' : n.statut === 'warn' ? '△ Attention' : '✓ OK';
+  var statCol = n.statut === 'error' ? 'var(--danger)' : n.statut === 'warn' ? 'var(--warn)' : 'var(--ok)';
+  document.getElementById('bom-detail').innerHTML =
+    field('Référence', '<span style="font-family:monospace;font-weight:600">' + n.ref + '</span>') +
+    '<div style="height:8px"></div>' +
+    field('Désignation', n.name) +
+    '<div style="height:8px"></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">' +
+    field('Quantité', n.qty + ' ' + n.unit) +
+    field('Fournisseur', n.fourn || '<span style="color:var(--danger);font-weight:600">Non défini ⚑</span>') +
+    '</div>' +
+    '<div style="margin-top:10px;padding:8px;border-radius:var(--r8);background:' + (n.statut==='error'?'var(--danger-bg)':n.statut==='warn'?'var(--warn-bg)':'var(--ok-bg)') + ';font-size:12px;color:' + statCol + ';font-weight:600">' + statIcon + '</div>';
+}
+
+// ============================================================
+// VARIANTES
+// ============================================================
+function renderVariantes() {
+  var eto = DB.produits.filter(p => p.type === 'ETO');
+  document.getElementById('variantes-content').innerHTML =
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">Produits ETO — configurables à la commande (' + eto.length + ')</div>' +
+    eto.map(p => '<div style="border:1px solid var(--border);border-radius:var(--r8);padding:12px;margin-bottom:8px">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+      '<span style="font-weight:600;color:var(--navy)">' + p.id + '</span>' +
+      '<span>' + p.name + '</span>' +
+      '<span class="badge b-navy" style="margin-left:auto">ETO</span>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-bottom:6px">Paramètres configurables :</div>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+      ['Puissance (kW)', 'Fluide frigorigène', 'Tension alimentation', 'Options IoT', 'Certification'].map(opt =>
+        '<span class="badge b-b">' + opt + '</span>'
+      ).join('') + '</div></div>'
+    ).join('');
+}
+
+// ============================================================
+// ECO
+// ============================================================
+var ecoTab = 'en-cours';
+function switchTab(section, tab) {
+  ecoTab = tab;
+  document.querySelectorAll('#page-' + section + ' .tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderECO();
+}
+
+function renderECO() {
+  var rows = DB.eco;
+  if (ecoTab === 'en-cours') rows = rows.filter(e => e.statut !== 'Approuvé' && e.statut !== 'Rejeté');
+  else if (ecoTab === 'approuvees') rows = rows.filter(e => e.statut === 'Approuvé');
+  else if (ecoTab === 'rejetees') rows = rows.filter(e => e.statut === 'Rejeté');
+  document.getElementById('eco-tbody').innerHTML = rows.map(e =>
+    '<tr class="clickable">' +
+    '<td style="font-weight:600;color:var(--navy);font-size:11px">' + e.id + '</td>' +
+    '<td><span class="badge b-b">' + e.type + '</span></td>' +
+    '<td title="' + e.titre + '">' + e.titre + '</td>' +
+    '<td>' + e.produit + '</td>' +
+    '<td><span class="badge ' + prioBadge(e.prio) + '">' + e.prio + '</span></td>' +
+    '<td>' + e.demandeur + '</td>' +
+    '<td style="color:var(--muted)">' + fmtDate(e.date) + '</td>' +
+    '<td><span class="badge ' + ecoBadge(e.statut) + '">' + e.statut + '</span></td>' +
+    '</tr>'
+  ).join('');
+}
+
+// ============================================================
+// VALIDATIONS
+// ============================================================
+function renderValidations() {
+  var pending = DB.eco.filter(e => e.statut === 'En attente approbation');
+  document.getElementById('validations-content').innerHTML = pending.length === 0
+    ? '<div style="text-align:center;padding:24px;color:var(--muted)">Aucune validation en attente</div>'
+    : pending.map(e =>
+      '<div style="border:1px solid var(--border);border-radius:var(--r8);padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">' +
+      '<div style="flex:1"><div style="font-weight:600;font-size:13px">' + e.titre + '</div>' +
+      '<div style="font-size:11px;color:var(--muted);margin-top:3px">' + e.id + ' · ' + e.produit + ' · Demandé par ' + e.demandeur + '</div>' +
+      '<div style="font-size:12px;color:var(--muted);margin-top:4px">' + e.desc + '</div></div>' +
+      '<div style="display:flex;gap:6px">' +
+      '<button class="btn" style="color:var(--danger);border-color:var(--danger)" onclick="validerECO(\'' + e.id + '\',\'Rejeté\')">Rejeter</button>' +
+      '<button class="btn primary" onclick="validerECO(\'' + e.id + '\',\'Approuvé\')">✓ Approuver</button>' +
+      '</div></div>'
+    ).join('');
+}
+
+function validerECO(id, statut) {
+  var eco = DB.eco.find(e => e.id === id);
+  if (!eco) return;
+  eco.statut = statut;
+  logEvent('validation', eco.produit, eco.id + ' ' + statut + ' — ' + eco.titre, 'Vous');
+  saveDB();
+  renderValidations();
+  updateNavBadges();
+  toast(statut === 'Approuvé' ? 'ECO approuvé ✓' : 'ECO rejeté', statut === 'Approuvé' ? 'ok' : 'err');
+}
+
+// ============================================================
+// DOCUMENTS
+// ============================================================
+function renderDocs() {
+  document.getElementById('docs-tbody').innerHTML = DB.documents.map(d =>
+    '<tr>' +
+    '<td title="' + d.name + '">' + d.name + '</td>' +
+    '<td><span class="badge b-gray">' + d.type + '</span></td>' +
+    '<td style="font-weight:600;color:var(--navy)">' + d.produit + '</td>' +
+    '<td style="font-family:monospace">' + d.version + '</td>' +
+    '<td>' + d.auteur + '</td>' +
+    '<td style="color:var(--muted)">' + fmtDate(d.date) + '</td>' +
+    '<td>' + docStatut(d.statut) + '</td>' +
+    '<td>' + docFlag(d.flag) + '</td>' +
+    '</tr>'
+  ).join('');
+}
+
+// ============================================================
+// FOURNISSEURS
+// ============================================================
+function renderFourn() {
+  document.getElementById('fourn-tbody').innerHTML = DB.fournisseurs.map(f =>
+    '<tr>' +
+    '<td style="font-weight:600">' + f.name + '</td>' +
+    '<td title="' + f.famille + '">' + f.famille + '</td>' +
+    '<td>' + f.produits.join(', ') + '</td>' +
+    '<td><span class="badge ' + qualifBadge(f.qualif) + '">' + f.qualif + '</span></td>' +
+    '<td><span class="badge ' + risqueBadge(f.risque) + '">' + f.risque + '</span></td>' +
+    '<td style="color:var(--muted)">' + fmtDate(f.audit) + '</td>' +
+    '<td>' + statutDot(f.statut === 'ok' ? 'Validé' : f.statut === 'warn' ? 'Attente' : 'Bloqué') + '</td>' +
+    '</tr>'
+  ).join('');
+}
+
+// ============================================================
+// INTEGRATIONS
+// ============================================================
+function renderInteg() {
+  document.getElementById('integ-cards').innerHTML = DB.integrations.map(i =>
+    '<div class="integ-card">' +
+    '<div class="integ-icon" style="background:' + i.couleur + '22;color:' + i.couleur + ';font-size:20px">' + i.icon + '</div>' +
+    '<div class="integ-body">' +
+    '<div class="integ-name">' + i.name + ' <span style="font-size:10px;color:var(--muted);font-weight:400">(' + i.type + ')</span></div>' +
+    '<div class="integ-sub">' + i.detail + '</div>' +
+    '<div style="font-size:10px;color:var(--muted);margin-top:3px">Dernier sync : ' + i.dernier + '</div>' +
+    '</div>' +
+    '<div><span class="integ-status" style="background:' + integColor(i.statut).bg + ';color:' + integColor(i.statut).fg + '">' + integLabel(i.statut) + '</span></div>' +
+    '</div>'
+  ).join('');
+
+  document.getElementById('integ-log').innerHTML = DB.journal.filter(j => j.type === 'sync').slice(0, 6).map(j => journalRow(j)).join('') ||
+    '<div style="color:var(--muted);font-size:12px;padding:8px">Aucun événement de synchronisation</div>';
+}
+
+// ============================================================
+// JOURNAL
+// ============================================================
+function renderJournal() {
+  var sel = (document.getElementById('filter-journal')||{}).value||'';
+  var prod = (document.getElementById('filter-journal-prod')||{}).value||'';
+  var rows = DB.journal.filter(j => (!sel || j.type === sel) && (!prod || j.produit === prod));
+
+  var selProd = document.getElementById('filter-journal-prod');
+  if (selProd && selProd.options.length < 3) {
+    var prods = [...new Set(DB.journal.map(j => j.produit))];
+    selProd.innerHTML = '<option value="">Tous les produits</option>' + prods.map(p => '<option>' + p + '</option>').join('');
+  }
+
+  document.getElementById('journal-list').innerHTML = rows.length
+    ? rows.map(j => journalRow(j)).join('')
+    : '<div style="color:var(--muted);font-size:12px;padding:8px">Aucun événement trouvé</div>';
+}
+
+function journalRow(j) {
+  var cols = {creation:'var(--turq)',modification:'var(--warn)',validation:'var(--ok)',eco:'var(--info)',sync:'#888'};
+  return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">' +
+    '<div style="width:8px;height:8px;border-radius:50%;background:' + (cols[j.type]||'#ccc') + ';flex-shrink:0;margin-top:4px"></div>' +
+    '<div style="flex:1"><span style="font-weight:600">' + j.msg + '</span>' +
+    '<div style="color:var(--muted);font-size:11px;margin-top:2px">' + j.user + ' · ' + fmtDatetime(j.date) + ' · <span class="badge b-gray">' + j.type + '</span></div></div>' +
+    '<div style="font-size:11px;font-weight:600;color:var(--navy)">' + j.produit + '</div>' +
+    '</div>';
+}
+
+// ============================================================
+// FLAGS IA
+// ============================================================
+function renderFlags() {
+  var active = DB.flags.filter(f => !f.resolu);
+  var resolu = DB.flags.filter(f => f.resolu);
+  document.getElementById('flags-summary').textContent =
+    active.filter(f => f.niveau==='critical').length + ' critiques · ' +
+    active.filter(f => f.niveau==='warn').length + ' alertes · ' +
+    active.filter(f => f.niveau==='info').length + ' informations · ' +
+    resolu.length + ' résolus';
+
+  document.getElementById('flags-list').innerHTML = DB.flags.map(f =>
+    '<div class="flag-row ' + (f.resolu ? '' : f.niveau==='critical'?'crit':f.niveau==='warn'?'warn':'info') + '" style="' + (f.resolu?'opacity:.45;background:var(--off)':'') + '">' +
+    '<span class="fi">' + (f.niveau==='critical'?'⚑':f.niveau==='warn'?'△':'ℹ') + '</span>' +
+    '<div style="flex:1"><div class="fm">' + f.titre + '</div><div class="fs">' + f.desc + '</div>' +
+    '<div style="margin-top:5px;font-size:11px;color:var(--muted)">Produit : <strong>' + f.produit + '</strong></div></div>' +
+    '<button class="btn ' + (f.resolu?'':'primary') + '" style="flex-shrink:0;font-size:11px" onclick="toggleFlag(\'' + f.id + '\')">' + (f.resolu?'↩ Rouvrir':'✓ Résolu') + '</button>' +
+    '</div>'
+  ).join('');
+}
+
+function toggleFlag(id) {
+  var f = DB.flags.find(x => x.id === id);
+  if (!f) return;
+  f.resolu = !f.resolu;
+  logEvent('modification', f.produit, 'Flag IA ' + (f.resolu?'marqué résolu':'réouvert') + ' — ' + f.titre, 'Vous');
+  saveDB();
+  updateNavBadges();
+  renderFlags();
+  renderDashboard();
+  toast(f.resolu ? 'Flag marqué résolu' : 'Flag réouvert', f.resolu ? 'ok' : '');
+}
+
+// ============================================================
+// IA ANALYSE
+// ============================================================
+function runIA() {
+  toast('Analyse IA en cours...', '');
+  setTimeout(function() {
+    var newFlags = [];
+    // Check BOM
+    Object.entries(DB.bom).forEach(([prodId, bom]) => {
+      var issues = [];
+      function walk(nodes) { nodes.forEach(n => { if (!n.fourn && n.statut === 'error') issues.push(n.name); if (n.children) walk(n.children); }); }
+      walk(bom.children || []);
+      if (issues.length > 0) {
+        var existing = DB.flags.find(f => f.produit === prodId && f.titre.includes('BOM'));
+        if (!existing) {
+          DB.flags.push({id:'F'+Date.now(), niveau:'critical', titre:'BOM incomplète — '+prodId, desc:issues.length+' composant(s) sans fournisseur : '+issues.slice(0,2).join(', ')+(issues.length>2?' ...':''), produit:prodId, resolu:false});
+          newFlags.push(prodId);
+        }
+      }
+    });
+    // Check docs manquants
+    DB.documents.filter(d => d.statut === 'MANQUANT').forEach(d => {
+      var existing = DB.flags.find(f => f.produit === d.produit && f.titre.includes('Document manquant'));
+      if (!existing) {
+        DB.flags.push({id:'F'+Date.now()+1, niveau:'critical', titre:'Document manquant — '+d.produit, desc:d.name+' requis mais absent.', produit:d.produit, resolu:false});
+        newFlags.push(d.produit);
+      }
+    });
+    logEvent('modification', 'Tous', 'Analyse IA complète — '+DB.flags.filter(f=>!f.resolu).length+' anomalies actives', 'IA');
+    saveDB();
+    updateNavBadges();
+    renderDashboard();
+    toast('Analyse IA terminée — ' + DB.flags.filter(f=>!f.resolu).length + ' anomalies actives', 'ok');
+  }, 1800);
+}
+
+// ============================================================
+// SAVE FORMS
+// ============================================================
+function saveProduit() {
+  var ref = document.getElementById('np-ref').value.trim();
+  var name = document.getElementById('np-name').value.trim();
+  if (!ref || !name) { toast('Référence et désignation requises', 'err'); return; }
+  if (DB.produits.find(p => p.id === ref)) { toast('Référence déjà existante', 'err'); return; }
+  var p = {
+    id: ref, name: name,
+    type: document.getElementById('np-type').value,
+    phase: document.getElementById('np-phase').value,
+    rev: '—', resp: document.getElementById('np-resp').value,
+    famille: document.getElementById('np-famille').value,
+    statut: 'Actif', maj: new Date().toISOString().split('T')[0],
+    desc: document.getElementById('np-desc').value
+  };
+  DB.produits.unshift(p);
+  logEvent('creation', ref, 'Produit ' + ref + ' — ' + name + ' créé en phase ' + p.phase, p.resp || 'Vous');
+  saveDB();
+  updateNavBadges();
+  closeModal('modal-produit');
+  renderDashboard();
+  toast('Produit ' + ref + ' créé ✓', 'ok');
+  // Populate ECO modal prod select
+  populateECOProd();
+}
+
+function saveECO() {
+  var titre = document.getElementById('eco-titre').value.trim();
+  if (!titre) { toast('Titre requis', 'err'); return; }
+  var eco = {
+    id: 'ECR-' + new Date().getFullYear() + '-' + String(DB.eco.length + 50).padStart(3,'0'),
+    type: document.getElementById('eco-type').value.includes('ECR') ? 'ECR' : 'ECO',
+    titre: titre,
+    produit: document.getElementById('eco-prod').value || '—',
+    prio: document.getElementById('eco-prio').value,
+    demandeur: document.getElementById('eco-demandeur').value || 'Vous',
+    date: new Date().toISOString().split('T')[0],
+    statut: 'En cours',
+    desc: document.getElementById('eco-desc').value
+  };
+  DB.eco.unshift(eco);
+  logEvent('eco', eco.produit, eco.id + ' soumis — ' + eco.titre, eco.demandeur);
+  saveDB();
+  updateNavBadges();
+  closeModal('modal-eco');
+  renderDashboard();
+  toast(eco.id + ' soumis ✓', 'ok');
+}
+
+function populateECOProd() {
+  var sel = document.getElementById('eco-prod');
+  if (sel) sel.innerHTML = DB.produits.map(p => '<option value="' + p.id + '">' + p.id + ' — ' + p.name + '</option>').join('');
+}
+
+// ============================================================
+// BADGES / HELPERS
+// ============================================================
+function phaseBadge(p) {
+  return {Concept:'b-b',Développement:'b-turq',Validation:'b-o','Fin de vie':'b-gray',Production:'b-g'}[p]||'b-gray';
+}
+function ecoBadge(s) {
+  if (s==='Approuvé') return 'b-g';
+  if (s==='Rejeté') return 'b-r';
+  if (s==='Bloqué') return 'b-r';
+  if (s==='En attente approbation') return 'b-o';
+  return 'b-b';
+}
+function prioBadge(p) {
+  return {Critique:'b-r',Haute:'b-o',Normale:'b-b',Basse:'b-gray'}[p]||'b-gray';
+}
+function qualifBadge(q) {
+  if (q==='Qualifié') return 'b-g';
+  if (q==='Probatoire') return 'b-o';
+  if (q==='Manquant') return 'b-r';
+  return 'b-o';
+}
+function risqueBadge(r) {
+  return {Faible:'b-g',Moyen:'b-o',Critique:'b-r'}[r]||'b-gray';
+}
+function statutDot(s) {
+  var map = {Validé:'dot-g',Actif:'dot-g',Attente:'dot-o','En cours':'dot-o',Bloqué:'dot-r',Archivé:'dot-b'};
+  return '<span class="dot ' + (map[s]||'dot-b') + '"></span>' + s;
+}
+function docStatut(s) {
+  if (s==='MANQUANT') return '<span style="color:var(--danger);font-weight:600;font-size:11px">⚑ MANQUANT</span>';
+  if (s==='Signé') return '<span style="color:var(--ok);font-size:11px">✓ Signé</span>';
+  return '<span style="color:var(--warn);font-size:11px">△ ' + s + '</span>';
+}
+function docFlag(f) {
+  if (f==='critical') return '<span class="badge b-r">Critique</span>';
+  if (f==='warn') return '<span class="badge b-o">Alerte</span>';
+  return '<span class="badge b-g">OK</span>';
+}
+function integLabel(s) { return {sync:'Synchronisé',warn:'Alerte',offline:'Hors ligne'}[s]||s; }
+function integColor(s) {
+  return {sync:{bg:'#EAF7F2',fg:'#0E7A56'},warn:{bg:'#FFF8E6',fg:'#C47B0A'},offline:{bg:'#F1F3F6',fg:'#6B7A94'}}[s]||{bg:'#F1F3F6',fg:'#6B7A94'};
+}
+function fmtDate(d) {
+  if (!d || d === '—') return '—';
+  try { return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}); } catch(e) { return d; }
+}
+function fmtDatetime(d) {
+  if (!d || d === '—') return '—';
+  try { return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); } catch(e) { return d; }
+}
+
+function updateNavBadges() {
+  var flags = DB.flags.filter(f => !f.resolu).length;
+  var bom = 0; Object.values(DB.bom).forEach(b => countBomIssues(b.children, n => bom += n));
+  var eco = DB.eco.filter(e => e.statut !== 'Approuvé' && e.statut !== 'Rejeté').length;
+  var docs = DB.documents.filter(d => d.statut === 'MANQUANT' || d.statut === 'Non signé').length;
+  document.getElementById('nb-flags').textContent = flags;
+  document.getElementById('nb-ia').textContent = flags;
+  document.getElementById('nb-bom').textContent = bom;
+  document.getElementById('nb-eco').textContent = eco;
+  document.getElementById('nb-docs').textContent = docs;
+}
+
+// ============================================================
+// MODAL & TOAST
+// ============================================================
+function openModal(id) {
+  if (id === 'modal-eco') populateECOProd();
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', function(e) {
+  document.querySelectorAll('.modal-bg.open').forEach(m => { if (e.target === m) m.classList.remove('open'); });
+});
+
+var toastTimer;
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadDB();
+</script>
+</body>
+</html>

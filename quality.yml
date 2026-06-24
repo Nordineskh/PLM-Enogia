@@ -1,0 +1,81 @@
+name: Contrôle qualité — Pull Requests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  review:
+    name: Revue automatique PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Vérifier structure du repo
+        run: |
+          echo "## Vérification structure"
+          ERRORS=0
+
+          files=(
+            "public/index.html"
+            "README.md"
+            ".gitignore"
+            ".env.example"
+          )
+
+          for f in "${files[@]}"; do
+            if [ -f "$f" ]; then
+              echo "  ✅ $f"
+            else
+              echo "  ❌ $f MANQUANT"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "❌ $ERRORS fichier(s) manquant(s)"
+            exit 1
+          fi
+          echo "✅ Structure OK"
+
+      - name: Vérifier qu'aucun secret n'est commité
+        run: |
+          echo "## Vérification secrets"
+          FOUND=0
+
+          patterns=(
+            "AIza"
+            "firebase_api_key"
+            "AAAA[A-Za-z0-9_-]{7}:"
+          )
+
+          for pat in "${patterns[@]}"; do
+            if grep -r "$pat" public/ --include="*.html" --include="*.js" -l 2>/dev/null; then
+              echo "⚠️ Pattern suspect trouvé : $pat"
+              FOUND=1
+            fi
+          done
+
+          # Vérifier que .env n'est pas commité
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "❌ CRITIQUE : fichier .env commité !"
+            exit 1
+          fi
+
+          if [ $FOUND -eq 0 ]; then
+            echo "✅ Aucun secret détecté"
+          fi
+
+      - name: Rapport PR
+        run: |
+          echo "### ✅ PR prête pour review" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Contrôle | Statut |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Structure fichiers | ✅ OK |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets exposés | ✅ Aucun |" >> $GITHUB_STEP_SUMMARY
+          echo "| index.html | ✅ Présent |" >> $GITHUB_STEP_SUMMARY

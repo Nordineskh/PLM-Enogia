@@ -1,0 +1,39 @@
+# ─── Secrets & environnement ───────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+firebase-service-account.json
+google-services.json
+
+# ─── Node (si outils locaux) ────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn
+
+# ─── Éditeurs ───────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ─── Build / cache ──────────────────────────────
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# ─── Firebase CLI ───────────────────────────────
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# ─── Logs ───────────────────────────────────────
+*.log
+logs/
